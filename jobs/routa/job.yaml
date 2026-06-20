@@ -1,0 +1,31 @@
+# routa — remote-dockerfile build of phodal/routa (workspace-first multi-agent platform).
+#
+# Static structure only; the check on Forgejo resolves {app} from the latest
+# phodal/routa GitHub release and writes the fully-resolved plan to
+# desired/routa.json (decision 9). The GitHub build clones phodal/routa at the
+# resolved ref (v{app}) and runs buildx on its root Dockerfile — the published
+# package is linked back to the source repo via the build-time source label.
+#
+# No buildArgs: routa's Dockerfile declares no ARG (it is a self-contained
+# multi-stage Next.js standalone build).
+# No test block: the image is a long-running web server (node server.js, :3000),
+# not a CLI, so a CLI-style smoke test that asserts exit 0 cannot exercise it.
+name: routa
+mode: remote-dockerfile
+registry: ghcr.io/janrk
+platforms:
+  - linux/amd64
+  - linux/arm64
+tagFormat: "v{app}"
+extraTags:
+  - latest
+sources:
+  - id: app
+    method: githubRelease
+    link: phodal/routa
+    tagPrefixStrip: v
+remote:
+  repo: https://github.com/phodal/routa
+  ref: "v{app}"
+  dockerfile: Dockerfile
+  context: "."

@@ -21,6 +21,7 @@ setup() {
 
     _make_fake skopeo
     _make_fake docker
+    _make_fake git
     export PATH="$FAKE_BIN:$PATH"
 
     # Deterministic timestamp for result-artifact emission.
@@ -54,6 +55,22 @@ if [ -n "${FAKE_DOCKER_FAIL_ON:-}" ] && [[ "$*" == *"$FAKE_DOCKER_FAIL_ON"* ]]; 
 exit "${FAKE_DOCKER_RC:-0}"
 EOF
             chmod +x "$FAKE_BIN/docker"
+            ;;
+        git)
+            # Records the call and, for `clone`, materialises the destination
+            # (last arg) with a Dockerfile so the remote build path is testable.
+            cat > "$FAKE_BIN/git" <<'EOF'
+#!/usr/bin/env bash
+echo "git $*" >> "$CALL_LOG"
+if [ -n "${FAKE_GIT_FAIL_ON:-}" ] && [[ "$*" == *"$FAKE_GIT_FAIL_ON"* ]]; then exit 1; fi
+if [ "$1" = "clone" ]; then
+  for dest in "$@"; do :; done
+  mkdir -p "$dest"
+  printf 'FROM scratch\n' > "$dest/Dockerfile"
+fi
+exit 0
+EOF
+            chmod +x "$FAKE_BIN/git"
             ;;
     esac
 }

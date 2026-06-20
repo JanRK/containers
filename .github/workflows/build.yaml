@@ -125,10 +125,11 @@ jobs:
           echo "skip=false" >> "$GITHUB_OUTPUT"
           registry="$(yq -r '.registry // "ghcr.io/janrk"' "$cfg")"
           name="$(yq -r '.name' "$cfg")"
+          mode="$(yq -r '.mode' "$cfg")"
           {
             echo "plan=$plan"
             echo "cfg=$cfg"
-            echo "mode=$(yq -r '.mode' "$cfg")"
+            echo "mode=$mode"
             echo "image=$registry/$name"
             echo "track=$(yq -r '.mirror.track // "version"' "$cfg")"
             echo "platforms=$(yq -r '.platforms // ["linux/amd64","linux/arm64"] | join(",")' "$cfg")"
@@ -136,6 +137,17 @@ jobs:
             echo "context=jobs/$JOB/$(yq -r '.context // "."' "$cfg")"
             echo "targetTag=$(jq -r '.targetTag' "$plan")"
           } >> "$GITHUB_OUTPUT"
+          # remote-dockerfile: the clone coordinates live in the resolved PLAN
+          # (repo, ref, dockerfile, context) — emit them so the build step can
+          # pass --repo/--ref and the in-clone paths to build.sh.
+          if [ "$mode" = "remote-dockerfile" ]; then
+            {
+              echo "repo=$(jq -r '.repo' "$plan")"
+              echo "ref=$(jq -r '.ref' "$plan")"
+              echo "remote_dockerfile=$(jq -r '.dockerfile // "Dockerfile"' "$plan")"
+              echo "remote_context=$(jq -r '.context // "."' "$plan")"
+            } >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Registry-skip guard
         id: guard
@@ -167,6 +179,10 @@ jobs:
           DOCKERFILE: ${{ steps.cfg.outputs.dockerfile }}
           CONTEXT: ${{ steps.cfg.outputs.context }}
           SOURCE: ${{ github.server_url }}/${{ github.repository }}
+          REPO: ${{ steps.cfg.outputs.repo }}
+          REF: ${{ steps.cfg.outputs.ref }}
+          REMOTE_DOCKERFILE: ${{ steps.cfg.outputs.remote_dockerfile }}
+          REMOTE_CONTEXT: ${{ steps.cfg.outputs.remote_context }}
           JOB: ${{ matrix.job }}
         run: |
           set -euo pipefail
@@ -182,7 +198,12 @@ jobs:
                 --platforms "$PLATFORMS" --push true --source "$SOURCE" --result "$result"
               ;;
             remote-dockerfile)
-              echo "remote-dockerfile mode is deferred (decision 1)"; exit 1
+              # Clone the public repo at the resolved ref and build its
+              # Dockerfile; --context is the path within the clone (decision 1).
+              bash scripts/build.sh --plan "$PLAN" --image "$IMAGE" \
+                --repo "$REPO" --ref "$REF" \
+                --context "$REMOTE_CONTEXT" --dockerfile "$REMOTE_DOCKERFILE" \
+                --platforms "$PLATFORMS" --push true --source "$SOURCE" --result "$result"
               ;;
             *)
               echo "unknown mode: $MODE"; exit 1

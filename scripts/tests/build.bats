@@ -107,3 +107,45 @@ writePlan() {
         --context "$TEST_TMP/ctx"
     [ "$status" -ne 0 ]
 }
+
+writeRemotePlan() {
+    jq -n '{name:"paperclip", targetTag:"v2.5.0", extraTags:["latest"],
+            buildArgs:{APP_VERSION:"2.5.0"}, resolved:{app:"2.5.0"},
+            repo:"https://github.com/owner/paperclip", ref:"v2.5.0",
+            dockerfile:"Dockerfile", context:"."}' > "$TEST_TMP/plan.json"
+}
+
+@test "clones a public repo at the ref and builds its Dockerfile (remote-dockerfile)" {
+    writeRemotePlan
+    run bash "$SCRIPTS_DIR/build.sh" --plan "$TEST_TMP/plan.json" --image ghcr.io/janrk/paperclip \
+        --repo https://github.com/owner/paperclip --ref v2.5.0 \
+        --context . --dockerfile Dockerfile \
+        --source https://github.com/owner/paperclip
+    [ "$status" -eq 0 ]
+    log_has "git clone --depth 1 --branch v2.5.0 https://github.com/owner/paperclip"
+    log_has "buildx build"
+    log_has "-t ghcr.io/janrk/paperclip:v2.5.0"
+    log_has "-t ghcr.io/janrk/paperclip:latest"
+    log_has "--build-arg APP_VERSION=2.5.0"
+    log_has "--label org.opencontainers.image.source=https://github.com/owner/paperclip"
+    log_has "--push"
+}
+
+@test "requires --ref when --repo is given" {
+    writeRemotePlan
+    run bash "$SCRIPTS_DIR/build.sh" --plan "$TEST_TMP/plan.json" --image ghcr.io/janrk/paperclip \
+        --repo https://github.com/owner/paperclip --context .
+    [ "$status" -ne 0 ]
+    ! log_has "buildx build"
+}
+
+@test "falls back to full clone + checkout when the shallow branch clone fails" {
+    writeRemotePlan
+    export FAKE_GIT_FAIL_ON="--depth 1"
+    run bash "$SCRIPTS_DIR/build.sh" --plan "$TEST_TMP/plan.json" --image ghcr.io/janrk/paperclip \
+        --repo https://github.com/owner/paperclip --ref deadbeef \
+        --context . --dockerfile Dockerfile
+    [ "$status" -eq 0 ]
+    log_has "checkout deadbeef"
+    log_has "buildx build"
+}
