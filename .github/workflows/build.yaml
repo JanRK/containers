@@ -111,8 +111,18 @@ jobs:
           set -euo pipefail
           plan="desired/$JOB.json"
           cfg="jobs/$JOB/job.yaml"
-          [ -f "$plan" ] || { echo "missing $plan"; exit 1; }
-          [ -f "$cfg" ]  || { echo "missing $cfg"; exit 1; }
+          # A missing desired/<job>.json means the check requested no build for
+          # this job (already built / up to date, decision 3). detect can still
+          # select a job from a jobs/<id>/** mirror change, so treat a missing
+          # plan as a clean skip — the same "nothing to build" outcome as the
+          # registry-skip guard — rather than a hard failure.
+          if [ ! -f "$plan" ]; then
+            echo "No $plan — the check requested no build for $JOB; skipping."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          [ -f "$cfg" ] || { echo "missing $cfg"; exit 1; }
+          echo "skip=false" >> "$GITHUB_OUTPUT"
           registry="$(yq -r '.registry // "ghcr.io/janrk"' "$cfg")"
           name="$(yq -r '.name' "$cfg")"
           {
@@ -129,6 +139,7 @@ jobs:
 
       - name: Registry-skip guard
         id: guard
+        if: steps.cfg.outputs.skip != 'true'
         run: |
           set -euo pipefail
           decision="$(bash scripts/should-build.sh \
