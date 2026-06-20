@@ -1,0 +1,30 @@
+# opencode — standalone OpenCode server image.
+#
+# Static structure only; the check on Forgejo resolves {opencode} to the concrete
+# release version and writes the fully-resolved plan to desired/opencode.json
+# (decision 9). opencode is pinned via the OPENCODE_VERSION build arg so the
+# published v<opencode> tag is honest (decision 13).
+#
+# Runtime: runs `opencode serve` as PID 1 under tini, binding OPENCODE_HOSTNAME
+# (default 127.0.0.1 — loopback only, NOT reachable from outside the container by
+# default) on OPENCODE_PORT (default 4096). To expose it, override the host:
+#   docker run -e OPENCODE_HOSTNAME=0.0.0.0 -p 4096:4096 ghcr.io/janrk/opencode
+name: opencode
+mode: local-dockerfile
+registry: ghcr.io/janrk
+platforms:
+  - linux/amd64
+  - linux/arm64
+tagFormat: "v{opencode}"
+extraTags:
+  - latest
+sources:
+  - id: opencode
+    method: githubRelease
+    link: anomalyco/opencode
+    tagPrefixStrip: v
+buildArgs:
+  OPENCODE_VERSION: "{opencode}"
+test:
+  - entrypoint: opencode
+    args: ["--version"]
