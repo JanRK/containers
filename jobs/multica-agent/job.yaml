@@ -1,0 +1,39 @@
+# multica-agent — first migrated job (Step 11).
+#
+# Static structure only; the check on Forgejo resolves every {placeholder} and
+# writes the fully-resolved plan to desired/multica-agent.json (decision 9).
+# Three upstream components are tracked and baked in at pinned versions so the
+# composite tag m<multica>-o<opencode>-h<hermes> is honest (decision 13).
+name: multica-agent
+mode: local-dockerfile
+registry: ghcr.io/janrk
+platforms:
+  - linux/amd64
+  - linux/arm64
+tagFormat: "m{multica}-o{opencode}-h{hermes}"
+extraTags:
+  - latest
+sources:
+  - id: multica
+    method: githubRelease
+    link: multica-ai/multica
+    tagPrefixStrip: v
+  - id: opencode
+    method: githubRelease
+    link: anomalyco/opencode
+    tagPrefixStrip: v
+  - id: hermes
+    method: githubRelease
+    link: NousResearch/hermes-agent
+    tagPrefixStrip: v
+buildArgs:
+  MULTICA_VERSION: "{multica}"
+  OPENCODE_VERSION: "{opencode}"
+  HERMES_VERSION: "{hermes}"
+test:
+  - entrypoint: multica
+    args: ["--version"]
+  - entrypoint: opencode
+    args: ["--version"]
+  - entrypoint: hermes
+    args: ["--version"]

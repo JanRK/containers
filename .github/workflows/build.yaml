@@ -1,0 +1,242 @@
+name: build
+
+# Build / mirror pipeline (decisions 3, 4, 9, 11). GitHub executes the resolved
+# plan in desired/<name>.json verbatim — it performs no substitution. Triggers
+# deliberately exclude state/** and history/** so the record job's commit does
+# not re-trigger a build (no [skip ci] needed).
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'jobs/**'
+      - 'desired/**'
+  workflow_dispatch:
+    inputs:
+      job:
+        description: 'Job to build (empty = all enabled jobs)'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # detect — diff-scoped matrix selection (decision 11).
+  # ---------------------------------------------------------------------------
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      jobs: ${{ steps.detect.outputs.jobs }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install yq
+        run: |
+          set -euo pipefail
+          sudo curl -fsSL -o /usr/local/bin/yq \
+            https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Detect jobs to build
+        id: detect
+        env:
+          EVENT: ${{ github.event_name }}
+          DISPATCH_JOB: ${{ github.event.inputs.job }}
+          BEFORE: ${{ github.event.before }}
+          SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          args=(--event "$EVENT" --repo-root .)
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            args+=(--dispatch-job "$DISPATCH_JOB")
+          elif [ -z "${BEFORE:-}" ] \
+              || [ "$BEFORE" = "0000000000000000000000000000000000000000" ] \
+              || ! git rev-parse -q --verify "$BEFORE^{commit}" >/dev/null 2>&1; then
+            args+=(--first-run true)
+          else
+            git diff --name-only "$BEFORE" "$SHA" > changed.txt
+            args+=(--changed-files changed.txt)
+          fi
+          jobs="$(bash scripts/detect-jobs.sh "${args[@]}")"
+          echo "Detected jobs: $jobs"
+          echo "jobs=$jobs" >> "$GITHUB_OUTPUT"
+
+  # ---------------------------------------------------------------------------
+  # build — one matrix leg per job; commits nothing, uploads a result artifact
+  # (decisions 4, 9). Per-job concurrency queues (never cancels) overlapping
+  # builds of the same job (decision 3).
+  # ---------------------------------------------------------------------------
+  build:
+    needs: detect
+    if: needs.detect.outputs.jobs != '[]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        job: ${{ fromJSON(needs.detect.outputs.jobs) }}
+    concurrency:
+      group: build-${{ matrix.job }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tooling (yq, skopeo)
+        run: |
+          set -euo pipefail
+          sudo curl -fsSL -o /usr/local/bin/yq \
+            https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+          sudo apt-get update
+          sudo apt-get install -y skopeo
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Read resolved plan and static config
+        id: cfg
+        env:
+          JOB: ${{ matrix.job }}
+        run: |
+          set -euo pipefail
+          plan="desired/$JOB.json"
+          cfg="jobs/$JOB/job.yaml"
+          [ -f "$plan" ] || { echo "missing $plan"; exit 1; }
+          [ -f "$cfg" ]  || { echo "missing $cfg"; exit 1; }
+          registry="$(yq -r '.registry // "ghcr.io/janrk"' "$cfg")"
+          name="$(yq -r '.name' "$cfg")"
+          {
+            echo "plan=$plan"
+            echo "cfg=$cfg"
+            echo "mode=$(yq -r '.mode' "$cfg")"
+            echo "image=$registry/$name"
+            echo "track=$(yq -r '.mirror.track // "version"' "$cfg")"
+            echo "platforms=$(yq -r '.platforms // ["linux/amd64","linux/arm64"] | join(",")' "$cfg")"
+            echo "dockerfile=$(yq -r '.dockerfile // "Dockerfile"' "$cfg")"
+            echo "context=jobs/$JOB/$(yq -r '.context // "."' "$cfg")"
+            echo "targetTag=$(jq -r '.targetTag' "$plan")"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Registry-skip guard
+        id: guard
+        run: |
+          set -euo pipefail
+          decision="$(bash scripts/should-build.sh \
+            --plan '${{ steps.cfg.outputs.plan }}' \
+            --image '${{ steps.cfg.outputs.image }}' \
+            --track '${{ steps.cfg.outputs.track }}')"
+          echo "Guard decision: $decision"
+          echo "decision=$decision" >> "$GITHUB_OUTPUT"
+
+      - name: Set up QEMU
+        if: steps.guard.outputs.decision == 'build'
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Buildx
+        if: steps.guard.outputs.decision == 'build'
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build or mirror
+        if: steps.guard.outputs.decision == 'build'
+        env:
+          MODE: ${{ steps.cfg.outputs.mode }}
+          IMAGE: ${{ steps.cfg.outputs.image }}
+          PLAN: ${{ steps.cfg.outputs.plan }}
+          PLATFORMS: ${{ steps.cfg.outputs.platforms }}
+          DOCKERFILE: ${{ steps.cfg.outputs.dockerfile }}
+          CONTEXT: ${{ steps.cfg.outputs.context }}
+          JOB: ${{ matrix.job }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          result="artifacts/$JOB.json"
+          case "$MODE" in
+            mirror)
+              bash scripts/mirror.sh --plan "$PLAN" --image "$IMAGE" --result "$result"
+              ;;
+            local-dockerfile)
+              bash scripts/build.sh --plan "$PLAN" --image "$IMAGE" \
+                --context "$CONTEXT" --dockerfile "$DOCKERFILE" \
+                --platforms "$PLATFORMS" --push true --result "$result"
+              ;;
+            remote-dockerfile)
+              echo "remote-dockerfile mode is deferred (decision 1)"; exit 1
+              ;;
+            *)
+              echo "unknown mode: $MODE"; exit 1
+              ;;
+          esac
+
+      - name: Smoke test (native arch)
+        if: steps.guard.outputs.decision == 'build'
+        env:
+          IMAGE: ${{ steps.cfg.outputs.image }}
+          TARGET: ${{ steps.cfg.outputs.targetTag }}
+          CFG: ${{ steps.cfg.outputs.cfg }}
+        run: |
+          set -euo pipefail
+          tests="$(yq -o=json -I=0 '.test // []' "$CFG")"
+          bash scripts/smoke-test.sh --image "$IMAGE:$TARGET" --tests "$tests"
+
+      - name: Upload result artifact
+        if: steps.guard.outputs.decision == 'build'
+        uses: actions/upload-artifact@v4
+        with:
+          name: result-${{ matrix.job }}
+          path: artifacts/${{ matrix.job }}.json
+          if-no-files-found: error
+
+  # ---------------------------------------------------------------------------
+  # record — single fan-in writer of state/ and history/ (decision 4). Runs even
+  # if some build legs failed, recording only the successful artifacts; failed
+  # jobs self-heal on the next check cadence (decision 3).
+  # ---------------------------------------------------------------------------
+  record:
+    needs: build
+    if: ${{ always() && needs.build.result != 'skipped' && needs.build.result != 'cancelled' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          path: _artifacts
+          pattern: result-*
+          merge-multiple: true
+
+      - name: Record state and history
+        run: |
+          set -euo pipefail
+          if [ ! -d _artifacts ] || [ -z "$(ls -A _artifacts 2>/dev/null)" ]; then
+            echo "No build artifacts — nothing to record."
+            exit 0
+          fi
+          bash scripts/record.sh \
+            --artifacts _artifacts --state-dir state --history-dir history
+
+      - name: Commit and push
+        run: |
+          set -euo pipefail
+          if [ -z "$(git status --porcelain state history)" ]; then
+            echo "No state/history changes to commit."
+            exit 0
+          fi
+          git config user.name "container-bot"
+          git config user.email "container-bot@users.noreply.github.com"
+          git add state history
+          git commit -m "record: update build state and history"
+          git push
