@@ -166,6 +166,7 @@ jobs:
           PLATFORMS: ${{ steps.cfg.outputs.platforms }}
           DOCKERFILE: ${{ steps.cfg.outputs.dockerfile }}
           CONTEXT: ${{ steps.cfg.outputs.context }}
+          SOURCE: ${{ github.server_url }}/${{ github.repository }}
           JOB: ${{ matrix.job }}
         run: |
           set -euo pipefail
@@ -178,7 +179,7 @@ jobs:
             local-dockerfile)
               bash scripts/build.sh --plan "$PLAN" --image "$IMAGE" \
                 --context "$CONTEXT" --dockerfile "$DOCKERFILE" \
-                --platforms "$PLATFORMS" --push true --result "$result"
+                --platforms "$PLATFORMS" --push true --source "$SOURCE" --result "$result"
               ;;
             remote-dockerfile)
               echo "remote-dockerfile mode is deferred (decision 1)"; exit 1

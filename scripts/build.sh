@@ -7,7 +7,7 @@
 # Usage:
 #   build.sh --plan <desired.json> --image <registry/name> --context <dir>
 #            [--dockerfile <name>] [--platforms <list>] [--push <true|false>]
-#            [--result <path>]
+#            [--source <repo-url>] [--result <path>]
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -17,7 +17,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 main() {
     local plan="" image="" context="" dockerfile="Dockerfile"
-    local platforms="linux/amd64,linux/arm64" push="true" result=""
+    local platforms="linux/amd64,linux/arm64" push="true" result="" source=""
     while [ $# -gt 0 ]; do
         case "$1" in
             --plan)       plan="$2";       shift 2 ;;
@@ -26,6 +26,7 @@ main() {
             --dockerfile) dockerfile="$2"; shift 2 ;;
             --platforms)  platforms="$2";  shift 2 ;;
             --push)       push="$2";       shift 2 ;;
+            --source)     source="$2";     shift 2 ;;
             --result)     result="$2";     shift 2 ;;
             *) die "unknown argument: $1" ;;
         esac
@@ -42,6 +43,18 @@ main() {
 
     # Assemble the buildx argv incrementally so empty collections add nothing.
     local args=(buildx build --platform "$platforms" -f "$context/$dockerfile")
+
+    # Link the published package to its GitHub repo WITHOUT editing the
+    # Dockerfile — works for local-dockerfile and remote-dockerfile jobs alike,
+    # including Dockerfiles we do not own. org.opencontainers.image.source is
+    # set as a config label (the GitHub-documented build-time alternative to a
+    # Dockerfile LABEL) and, for the pushed multi-arch manifest, as an image
+    # index annotation (GHCR reads the index for multi-arch repo linkage).
+    if [ -n "$source" ]; then
+        args+=(--label "org.opencontainers.image.source=$source")
+        [ "$push" = "true" ] \
+            && args+=(--annotation "index:org.opencontainers.image.source=$source")
+    fi
 
     local kv
     while IFS= read -r kv; do

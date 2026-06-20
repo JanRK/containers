@@ -74,6 +74,32 @@ writePlan() {
     ! log_has "--push"
 }
 
+@test "links the package to its repo when --source is given" {
+    writePlan
+    run bash "$SCRIPTS_DIR/build.sh" --plan "$TEST_TMP/plan.json" --image ghcr.io/janrk/multica-agent \
+        --context "$TEST_TMP/ctx" --source https://github.com/JanRK/containers
+    [ "$status" -eq 0 ]
+    log_has "--label org.opencontainers.image.source=https://github.com/JanRK/containers"
+    log_has "--annotation index:org.opencontainers.image.source=https://github.com/JanRK/containers"
+}
+
+@test "omits the source label and annotation when --source is absent" {
+    writePlan
+    run bash "$SCRIPTS_DIR/build.sh" --plan "$TEST_TMP/plan.json" --image ghcr.io/janrk/multica-agent \
+        --context "$TEST_TMP/ctx"
+    [ "$status" -eq 0 ]
+    ! log_has "org.opencontainers.image.source"
+}
+
+@test "keeps the source label but drops the index annotation when not pushing" {
+    writePlan
+    run bash "$SCRIPTS_DIR/build.sh" --plan "$TEST_TMP/plan.json" --image ghcr.io/janrk/multica-agent \
+        --context "$TEST_TMP/ctx" --push false --source https://github.com/JanRK/containers
+    [ "$status" -eq 0 ]
+    log_has "--label org.opencontainers.image.source=https://github.com/JanRK/containers"
+    ! log_has "--annotation"
+}
+
 @test "propagates a docker build failure" {
     export FAKE_DOCKER_FAIL_ON="buildx"
     writePlan
