@@ -30,7 +30,7 @@ jobs:
     outputs:
       jobs: ${{ steps.detect.outputs.jobs }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -85,7 +85,7 @@ jobs:
       group: build-${{ matrix.job }}
       cancel-in-progress: false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install tooling (yq, skopeo)
         run: |
@@ -97,7 +97,7 @@ jobs:
           sudo apt-get install -y skopeo
 
       - name: Log in to GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -163,11 +163,11 @@ jobs:
 
       - name: Set up QEMU
         if: steps.guard.outputs.decision == 'build'
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
 
       - name: Set up Buildx
         if: steps.guard.outputs.decision == 'build'
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Build or mirror
         if: steps.guard.outputs.decision == 'build'
@@ -223,7 +223,7 @@ jobs:
 
       - name: Upload result artifact
         if: steps.guard.outputs.decision == 'build'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: result-${{ matrix.job }}
           path: artifacts/${{ matrix.job }}.json
@@ -241,10 +241,10 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         continue-on-error: true
         with:
           path: _artifacts

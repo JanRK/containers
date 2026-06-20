@@ -10,6 +10,18 @@
 # multi-stage Next.js standalone build).
 # No test block: the image is a long-running web server (node server.js, :3000),
 # not a CLI, so a CLI-style smoke test that asserts exit 0 cannot exercise it.
+#
+# SEED NOTE — ghcr.io/janrk/routa:v0.18.1 was built LOCALLY from phodal/routa
+# `main` and pushed on 2026-06-20; it is NOT the upstream v0.18.1 release. The
+# released tags v0.18.1 (2026-04-28) and v0.19.0-alpha.1 (2026-05-05) are
+# unbuildable: their Dockerfile COPYs only package*.json before `npm ci`, but
+# package.json's postinstall runs node scripts/install/run-patch-package.mjs ->
+# "Cannot find module" -> exit 1. The fix "fix(docker): include install
+# lifecycle assets" (phodal/routa#555, 2026-05-22) lands only on main. Because
+# the pipeline's "already built" guard is registry-tag existence, the resolved
+# targetTag v0.18.1 now exists, so the build leg SKIPS instead of failing. Once
+# upstream cuts a release dated >= 2026-05-22, the check resolves that newer
+# {app} and the pipeline builds it honestly (its Dockerfile carries the fix).
 name: routa
 mode: remote-dockerfile
 registry: ghcr.io/janrk
