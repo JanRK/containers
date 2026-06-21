@@ -1,5 +1,13 @@
 [
   {
+    "builtTag": "v1.17.9",
+    "resolved": {
+      "opencode": "1.17.9"
+    },
+    "builtDigest": "sha256:7d41e02e8bbd076b3efbdda64b84e7d71e205e594bfb1ad8cf14e57bc03d0b9e",
+    "builtAt": "2026-06-21T00:20:35Z"
+  },
+  {
     "builtTag": "v1.17.8",
     "resolved": {
       "opencode": "1.17.8"
