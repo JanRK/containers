@@ -1,0 +1,43 @@
+# routa-extras — downstream overlay of ghcr.io/janrk/routa that bakes in
+# git + ca-certificates on top of the upstream image.
+#
+# WHY an overlay: routa is a remote-dockerfile job that builds phodal/routa's
+# OWN Dockerfile verbatim (node:22-alpine runner stage). We do not edit that
+# upstream Dockerfile, and its final stage ships neither git nor a
+# ca-certificates bundle. This job layers exactly those two packages on top so
+# routa's workspace-first flows can shell out to git over HTTPS — without
+# vendoring or forking the upstream build.
+#
+# Static structure only; the check on Forgejo resolves {app} from the latest
+# phodal/routa GitHub release and writes the fully-resolved plan to
+# desired/routa-extras.json (decision 9). ROUTA_VERSION is pinned to {app} and
+# tagFormat is v{app} so this overlay's tag matches the routa base it sits on
+# (tag honesty, decision 13): routa-extras:vX.Y.Z == routa:vX.Y.Z + git + certs.
+#
+# BUILD ORDERING — this job's Dockerfile does FROM ghcr.io/janrk/routa:v{app},
+# so that base tag MUST already exist (and be multi-arch) before this overlay
+# can build. The routa seed v0.18.1 is amd64-only (see jobs/routa/job.yaml SEED
+# NOTE), so a real multi-arch build of routa-extras waits on routa going
+# multi-arch via the pipeline. Local validation (check/Test-Job.ps1) only
+# resolves + runs the suites — it does NOT pull the base — so it is unaffected.
+name: routa-extras
+mode: local-dockerfile
+registry: ghcr.io/janrk
+platforms:
+  - linux/amd64
+  - linux/arm64
+tagFormat: "v{app}"
+extraTags:
+  - latest
+sources:
+  - id: app
+    method: githubRelease
+    link: phodal/routa
+    tagPrefixStrip: v
+buildArgs:
+  ROUTA_VERSION: "{app}"
+# Smoke test: the routa base entrypoint is a web server (node server.js), so we
+# override it to assert the overlay actually landed git (exit 0 == installed).
+test:
+  - entrypoint: git
+    args: ["--version"]
