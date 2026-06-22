@@ -1,0 +1,17 @@
+{
+  "name": "routa",
+  "resolved": {
+    "app": "0.19.0"
+  },
+  "targetTag": "v0.19.0",
+  "extraTags": [
+    "latest"
+  ],
+  "repo": "https://github.com/phodal/routa",
+  "ref": "v0.19.0",
+  "dockerfile": "Dockerfile",
+  "context": ".",
+  "buildArgs": {},
+  "desiredAt": "2026-06-22T06:17:18Z",
+  "attempt": 1
+}
