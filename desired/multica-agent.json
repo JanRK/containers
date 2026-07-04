@@ -1,19 +1,19 @@
 {
   "name": "multica-agent",
   "resolved": {
-    "multica": "0.3.37",
+    "multica": "0.3.38",
     "opencode": "1.17.13",
     "hermes": "2026.7.1"
   },
-  "targetTag": "m0.3.37-o1.17.13-h2026.7.1",
+  "targetTag": "m0.3.38-o1.17.13-h2026.7.1",
   "extraTags": [
     "latest"
   ],
   "buildArgs": {
-    "MULTICA_VERSION": "0.3.37",
-    "OPENCODE_VERSION": "1.17.13",
-    "HERMES_VERSION": "2026.7.1"
+    "MULTICA_VERSION": "0.3.38",
+    "HERMES_VERSION": "2026.7.1",
+    "OPENCODE_VERSION": "1.17.13"
   },
-  "desiredAt": "2026-07-03T12:17:16Z",
-  "attempt": 15
+  "desiredAt": "2026-07-04T12:17:08Z",
+  "attempt": 16
 }
