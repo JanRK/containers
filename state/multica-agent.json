@@ -1,6 +1,6 @@
 {
-  "builtAt": "2026-07-04T12:28:37Z",
-  "builtDigest": "sha256:a107d47a36576f1dfcaf1b656f4ffe817996d9646e4300eae6e008f248de0a16",
-  "builtTag": "m0.3.38-o1.17.13-h2026.7.1",
+  "builtAt": "2026-07-06T18:28:59Z",
+  "builtDigest": "sha256:b2dc638423f793d5e9423d0ede8e95bdcca5694f008709fb341821080634800f",
+  "builtTag": "m0.3.39-o1.17.13-h2026.7.1",
   "name": "multica-agent"
 }
