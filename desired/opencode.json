@@ -1,15 +1,15 @@
 {
   "name": "opencode",
   "resolved": {
-    "opencode": "1.17.15"
+    "opencode": "1.17.16"
   },
-  "targetTag": "v1.17.15",
+  "targetTag": "v1.17.16",
   "extraTags": [
     "latest"
   ],
   "buildArgs": {
-    "OPENCODE_VERSION": "1.17.15"
+    "OPENCODE_VERSION": "1.17.16"
   },
-  "desiredAt": "2026-07-07T18:17:09Z",
-  "attempt": 8
+  "desiredAt": "2026-07-09T12:17:09Z",
+  "attempt": 9
 }
