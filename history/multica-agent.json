@@ -1,5 +1,15 @@
 [
   {
+    "builtTag": "m0.4.1-o1.17.20-h2026.7.7.2",
+    "resolved": {
+      "multica": "0.4.1",
+      "opencode": "1.17.20",
+      "hermes": "2026.7.7.2"
+    },
+    "builtDigest": "sha256:9005cca726daba97ad19d972eb52107d02d736c650771787a837bb9ed7f73a00",
+    "builtAt": "2026-07-14T12:29:03Z"
+  },
+  {
     "builtTag": "m0.4.0-o1.17.20-h2026.7.7.2",
     "resolved": {
       "multica": "0.4.0",
