@@ -1,5 +1,15 @@
 [
   {
+    "builtTag": "m0.4.19-o1.18.13-h2026.8.3",
+    "resolved": {
+      "multica": "0.4.19",
+      "opencode": "1.18.13",
+      "hermes": "2026.8.3"
+    },
+    "builtDigest": "sha256:e1e5851ec40569218e9cd2d3207ab76dcb8863851174eb6615e9f765888559c7",
+    "builtAt": "2026-08-05T12:27:47Z"
+  },
+  {
     "builtTag": "m0.4.18-o1.18.13-h2026.8.3",
     "resolved": {
       "multica": "0.4.18",
@@ -288,15 +298,5 @@
     },
     "builtDigest": "sha256:b81f6279ed06fee35993f6d8f73ea0cfa16e0c1abb128ef155bcab22d68495b7",
     "builtAt": "2026-07-09T18:28:20Z"
-  },
-  {
-    "builtTag": "m0.3.41-o1.17.15-h2026.7.7.2",
-    "resolved": {
-      "multica": "0.3.41",
-      "opencode": "1.17.15",
-      "hermes": "2026.7.7.2"
-    },
-    "builtDigest": "sha256:354a24ee65238b2e520736423133c989ef61d93f30afcec3e8bf716020f6f033",
-    "builtAt": "2026-07-08T12:28:02Z"
   }
 ]
