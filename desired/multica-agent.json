@@ -10,10 +10,10 @@
     "latest"
   ],
   "buildArgs": {
+    "HERMES_VERSION": "2026.8.19",
     "MULTICA_VERSION": "0.4.32",
-    "OPENCODE_VERSION": "1.18.21",
-    "HERMES_VERSION": "2026.8.19"
+    "OPENCODE_VERSION": "1.18.21"
   },
-  "desiredAt": "2026-08-23T06:17:22Z",
-  "attempt": 101
+  "desiredAt": "2026-08-23T12:17:22Z",
+  "attempt": 102
 }
