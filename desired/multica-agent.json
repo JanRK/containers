@@ -11,9 +11,9 @@
   ],
   "buildArgs": {
     "MULTICA_VERSION": "0.4.32",
-    "HERMES_VERSION": "2026.8.19",
-    "OPENCODE_VERSION": "1.18.21"
+    "OPENCODE_VERSION": "1.18.21",
+    "HERMES_VERSION": "2026.8.19"
   },
-  "desiredAt": "2026-08-24T00:17:07Z",
-  "attempt": 104
+  "desiredAt": "2026-08-24T06:17:07Z",
+  "attempt": 105
 }
