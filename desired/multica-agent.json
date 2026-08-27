@@ -3,17 +3,17 @@
   "resolved": {
     "multica": "0.4.35",
     "opencode": "1.18.23",
-    "hermes": "2026.8.19"
+    "hermes": "2026.8.27"
   },
-  "targetTag": "m0.4.35-o1.18.23-h2026.8.19",
+  "targetTag": "m0.4.35-o1.18.23-h2026.8.27",
   "extraTags": [
     "latest"
   ],
   "buildArgs": {
-    "HERMES_VERSION": "2026.8.19",
-    "MULTICA_VERSION": "0.4.35",
-    "OPENCODE_VERSION": "1.18.23"
+    "OPENCODE_VERSION": "1.18.23",
+    "HERMES_VERSION": "2026.8.27",
+    "MULTICA_VERSION": "0.4.35"
   },
-  "desiredAt": "2026-08-26T18:17:06Z",
-  "attempt": 115
+  "desiredAt": "2026-08-27T12:17:07Z",
+  "attempt": 116
 }
