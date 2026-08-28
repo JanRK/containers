@@ -1,6 +1,6 @@
 {
-  "builtAt": "2026-08-25T12:18:57Z",
-  "builtDigest": "sha256:b73b7730eeea2758c1cc98f3ab07e318d14275fc3adc3d5576e759412468fbdf",
-  "builtTag": "v1.18.23",
+  "builtAt": "2026-08-28T06:18:47Z",
+  "builtDigest": "sha256:1f9d17115e03118c4767ef9a725c642aca29459263e870f06708edcb700e18ae",
+  "builtTag": "v1.18.25",
   "name": "opencode"
 }
