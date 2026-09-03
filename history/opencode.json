@@ -1,5 +1,13 @@
 [
   {
+    "builtTag": "v1.18.27",
+    "resolved": {
+      "opencode": "1.18.27"
+    },
+    "builtDigest": "sha256:c56d13868593b1f62e9d50327616647c0dac21d6212b3808bdc455fb5d0a6a02",
+    "builtAt": "2026-09-03T00:19:01Z"
+  },
+  {
     "builtTag": "v1.18.26",
     "resolved": {
       "opencode": "1.18.26"
@@ -230,13 +238,5 @@
     },
     "builtDigest": "sha256:575845fe2808f649d1ac675b63ce8c5b54987b7e839eb972fd1d09690af502f8",
     "builtAt": "2026-07-01T00:19:44Z"
-  },
-  {
-    "builtTag": "v1.17.11",
-    "resolved": {
-      "opencode": "1.17.11"
-    },
-    "builtDigest": "sha256:d32d83d61bf9e8f663ea83617b01e0b91311da9a5115f3435a7165b10871522f",
-    "builtAt": "2026-06-25T12:20:18Z"
   }
 ]
