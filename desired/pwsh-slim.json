@@ -1,0 +1,42 @@
+{
+  "plan": {
+    "name": "pwsh-slim",
+    "mode": "local-dockerfile",
+    "image": "ghcr.io/janrk/pwsh-slim",
+    "track": "version",
+    "targetTag": "v7.6.6-b0.1.0-b20260918",
+    "extraTags": [
+      "latest"
+    ],
+    "resolved": {
+      "version": "7.6.6",
+      "base": "v0.1.0-b20260918",
+      "basestamp": "0.1.0-b20260918"
+    },
+    "platforms": [
+      "linux/amd64",
+      "linux/arm64"
+    ],
+    "test": [
+      {
+        "entrypoint": "pwsh",
+        "args": [
+          "-NoLogo",
+          "-NoProfile",
+          "-Command",
+          "$PSVersionTable.PSVersion.ToString()"
+        ]
+      }
+    ],
+    "buildArgs": {
+      "BASE_TAG": "v0.1.0-b20260918",
+      "POWERSHELL_VERSION": "7.6.6"
+    },
+    "context": "jobs/pwsh-slim",
+    "dockerfile": "jobs/pwsh-slim/Dockerfile"
+  },
+  "configDigest": "sha256:d781fb96de02e5cb5ed5deec09ce1f28682e84f60ca05f5fc2535e04f4168c3b",
+  "desiredAt": "2026-09-25T22:24:50Z",
+  "firstDesiredAt": "2026-09-25T22:24:50Z",
+  "attempt": 1
+}

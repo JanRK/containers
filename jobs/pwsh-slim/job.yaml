@@ -1,0 +1,27 @@
+name: pwsh-slim
+mode: local-dockerfile
+registry: ghcr.io/janrk
+platforms:
+  - linux/amd64
+  - linux/arm64
+tagFormat: "v{version}-b{basestamp}"
+extraTags:
+  - latest
+sources:
+  - id: version
+    method: githubRelease
+    link: PowerShell/PowerShell
+    tagPrefixStrip: v
+  - id: base
+    method: localJob
+    link: debian-trixie-base
+  - id: basestamp
+    method: localJob
+    link: debian-trixie-base
+    tagPrefixStrip: "v"
+buildArgs:
+  BASE_TAG: "{base}"
+  POWERSHELL_VERSION: "{version}"
+test:
+  - entrypoint: pwsh
+    args: ["-NoLogo", "-NoProfile", "-Command", "$PSVersionTable.PSVersion.ToString()"]
