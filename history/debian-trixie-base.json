@@ -1,0 +1,12 @@
+[
+  {
+    "builtTag": "v0.1.0-b20260918",
+    "resolved": {
+      "version": "0.1.0",
+      "base": "trixie-20260918-slim",
+      "basestamp": "20260918"
+    },
+    "builtDigest": "sha256:13c85e831b572901627acf7c220f94a8b7e4692a620c76631d078f14c6107a56",
+    "builtAt": "2026-09-25T22:19:29Z"
+  }
+]
