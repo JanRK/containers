@@ -1,0 +1,11 @@
+{
+  "builtAt": "2026-09-25T16:50:45Z",
+  "builtDigest": "sha256:d9fe4a8aef7adc74d97ba3870cfe13b0ef139ebc94ae21c2d01900e9d088b5e4",
+  "builtTag": "v0.1.0-b20260918",
+  "name": "airlock-base",
+  "resolved": {
+    "base": "trixie-20260918-slim",
+    "basestamp": "20260918",
+    "version": "0.1.0"
+  }
+}
