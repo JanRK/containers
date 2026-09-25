@@ -1,0 +1,23 @@
+{
+  "plan": {
+    "name": "searxng",
+    "mode": "mirror",
+    "image": "ghcr.io/janrk/searxng",
+    "track": "digest",
+    "targetTag": "latest",
+    "extraTags": [],
+    "resolved": {
+      "searxng": "latest"
+    },
+    "platforms": [
+      "linux/amd64",
+      "linux/arm64"
+    ],
+    "test": [],
+    "mirrorSource": "docker.io/searxng/searxng"
+  },
+  "configDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "desiredAt": "2026-01-14T09:31:02Z",
+  "firstDesiredAt": "2026-01-14T09:31:02Z",
+  "attempt": 1
+}

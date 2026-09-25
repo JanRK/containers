@@ -1,0 +1,25 @@
+{
+  "plan": {
+    "name": "nginx",
+    "mode": "mirror",
+    "image": "ghcr.io/janrk/nginx",
+    "track": "version",
+    "targetTag": "1.27.3",
+    "extraTags": [
+      "latest"
+    ],
+    "resolved": {
+      "nginx": "1.27.3"
+    },
+    "platforms": [
+      "linux/amd64",
+      "linux/arm64"
+    ],
+    "test": [],
+    "mirrorSource": "docker.io/library/nginx:1.27.3"
+  },
+  "configDigest": "sha256:9e6f7faf50977c381a3768f0530bfa869abcf62a02ab45f9411076e4841ea8cd",
+  "desiredAt": "2026-01-14T09:31:02Z",
+  "firstDesiredAt": "2026-01-14T09:31:02Z",
+  "attempt": 1
+}

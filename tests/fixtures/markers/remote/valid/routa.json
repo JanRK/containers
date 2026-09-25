@@ -1,0 +1,27 @@
+{
+  "plan": {
+    "name": "routa",
+    "mode": "remote-dockerfile",
+    "image": "ghcr.io/janrk/routa",
+    "track": "version",
+    "targetTag": "v1.4.0",
+    "extraTags": [],
+    "resolved": {
+      "app": "1.4.0"
+    },
+    "platforms": [
+      "linux/amd64",
+      "linux/arm64"
+    ],
+    "test": [],
+    "repo": "https://github.com/acme/routa",
+    "ref": "v1.4.0",
+    "buildArgs": {},
+    "context": ".",
+    "dockerfile": "docker/Dockerfile"
+  },
+  "configDigest": "sha256:d9a1152e9f161b3561bf8b9d99fc762207854063ab4499ba0f0d0a5dff251802",
+  "desiredAt": "2026-01-14T09:31:02Z",
+  "firstDesiredAt": "2026-01-14T09:31:02Z",
+  "attempt": 1
+}

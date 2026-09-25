@@ -10,7 +10,7 @@ writeArtifact() {  # path name builtTag [builtDigest]
         > "$path"
 }
 
-@test "writes a state receipt with only the receipt fields" {
+@test "writes a state receipt with the receipt fields, resolved included" {
     mkdir -p "$TEST_TMP/art"
     writeArtifact "$TEST_TMP/art/nginx.json" nginx 1.28.0 sha256:deadbeef
     run bash "$SCRIPTS_DIR/record.sh" --artifacts "$TEST_TMP/art" \
@@ -23,7 +23,19 @@ writeArtifact() {  # path name builtTag [builtDigest]
     [ "$(jq -r '.builtTag' "$r")" = "1.28.0" ]
     [ "$(jq -r '.builtDigest' "$r")" = "sha256:deadbeef" ]
     [ "$(jq -r '.builtAt' "$r")" = "2026-06-20T12:00:00Z" ]
-    [ "$(jq -r 'has("resolved")' "$r")" = "false" ]
+    [ "$(jq -c '.resolved' "$r")" = '{"version":"1.28.0"}' ]
+    [ "$(jq -c 'keys' "$r")" = '["builtAt","builtDigest","builtTag","name","resolved"]' ]
+}
+
+@test "the receipt stays flat and carries only what the artifact recorded" {
+    mkdir -p "$TEST_TMP/art"
+    jq -n '{name:"nginx", builtTag:"1.28.0", builtDigest:"sha256:x", builtAt:"t",
+            resolved:{version:"1.28.0"}, configDigest:"sha256:c", plan:{name:"nginx"}}' \
+        > "$TEST_TMP/art/nginx.json"
+    run bash "$SCRIPTS_DIR/record.sh" --artifacts "$TEST_TMP/art" \
+        --state-dir "$TEST_TMP/state" --history-dir "$TEST_TMP/history"
+    [ "$status" -eq 0 ]
+    [ "$(jq -c 'keys' "$TEST_TMP/state/nginx.json")" = '["builtAt","builtDigest","builtTag","name","resolved"]' ]
 }
 
 @test "creates a new history with a single newest-first entry" {

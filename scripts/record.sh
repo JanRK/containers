@@ -51,7 +51,7 @@ record_one() {
     jq -e '.builtAt' "$f" >/dev/null              || die "artifact $f missing .builtAt"
 
     # state receipt: only the receipt fields, sorted for stable diffs.
-    jq -S '{name, builtTag, builtDigest, builtAt}' "$f" > "$state_dir/$name.json"
+    jq -S '{name, builtTag, builtDigest, builtAt, resolved}' "$f" > "$state_dir/$name.json"
 
     # history: prepend newest-first, cap to N.
     local hist="$history_dir/$name.json" existing="[]"

@@ -4,75 +4,96 @@
 
 load helpers
 
-writePlan() {  # path targetTag [digest]
-    local path="$1" tag="$2" digest="${3:-}"
-    if [ -n "$digest" ]; then
-        jq -n --arg t "$tag" --arg d "$digest" '{name:"x", targetTag:$t, digest:$d}' > "$path"
-    else
-        jq -n --arg t "$tag" '{name:"x", targetTag:$t}' > "$path"
-    fi
+MATCHING="sha256:1111111111111111111111111111111111111111111111111111111111111111"
+OTHER="sha256:2222222222222222222222222222222222222222222222222222222222222222"
+
+# The registry's answer for a tag that is not published.
+registry_says_absent() {
+    export FAKE_SKOPEO_FAIL_ON="inspect"
+    export FAKE_SKOPEO_STDERR="reading manifest x in ghcr.io/janrk/x: manifest unknown"
 }
 
-# --- version-pinned (default track) ---
+guard() {
+    run --separate-stderr bash "$SCRIPTS_DIR/should-build.sh" "$@"
+}
+
+# --- version-pinned ---
 
 @test "version: builds when the target tag is absent" {
-    export FAKE_SKOPEO_FAIL_ON="inspect"
-    writePlan "$TEST_TMP/plan.json" 1.28.0
-    run --separate-stderr bash "$SCRIPTS_DIR/should-build.sh" \
-        --plan "$TEST_TMP/plan.json" --image ghcr.io/janrk/nginx
+    registry_says_absent
+    guard --image ghcr.io/janrk/nginx --target-tag 1.28.0 --track version
     [ "$status" -eq 0 ]
-    [ "$output" = "build" ]
+    [ "$output" = "decision=build" ]
+    log_has "docker://ghcr.io/janrk/nginx:1.28.0"
 }
 
 @test "version: skips when the target tag already exists" {
-    writePlan "$TEST_TMP/plan.json" 1.28.0
-    run --separate-stderr bash "$SCRIPTS_DIR/should-build.sh" \
-        --plan "$TEST_TMP/plan.json" --image ghcr.io/janrk/nginx
+    guard --image ghcr.io/janrk/nginx --target-tag 1.28.0 --track version
     [ "$status" -eq 0 ]
-    [ "$output" = "skip" ]
+    [ "$output" = "decision=skip" ]
 }
 
 # --- digest-tracked ---
 
 @test "digest: builds when the target tag is absent" {
-    export FAKE_SKOPEO_FAIL_ON="inspect"
-    writePlan "$TEST_TMP/plan.json" latest sha256:aaaa
-    run --separate-stderr bash "$SCRIPTS_DIR/should-build.sh" \
-        --plan "$TEST_TMP/plan.json" --image ghcr.io/janrk/searxng --track digest
+    registry_says_absent
+    guard --image ghcr.io/janrk/searxng --target-tag latest --track digest --digest "$MATCHING"
     [ "$status" -eq 0 ]
-    [ "$output" = "build" ]
+    [ "$output" = "decision=build" ]
 }
 
 @test "digest: skips when the target digest matches upstream" {
-    export FAKE_SKOPEO_DIGEST="sha256:matching"
-    writePlan "$TEST_TMP/plan.json" latest sha256:matching
-    run --separate-stderr bash "$SCRIPTS_DIR/should-build.sh" \
-        --plan "$TEST_TMP/plan.json" --image ghcr.io/janrk/searxng --track digest
+    export FAKE_SKOPEO_DIGEST="$MATCHING"
+    guard --image ghcr.io/janrk/searxng --target-tag latest --track digest --digest "$MATCHING"
     [ "$status" -eq 0 ]
-    [ "$output" = "skip" ]
+    [ "$output" = "decision=skip" ]
 }
 
 @test "digest: builds when the target digest differs from upstream" {
-    export FAKE_SKOPEO_DIGEST="sha256:current"
-    writePlan "$TEST_TMP/plan.json" latest sha256:wanted
-    run --separate-stderr bash "$SCRIPTS_DIR/should-build.sh" \
-        --plan "$TEST_TMP/plan.json" --image ghcr.io/janrk/searxng --track digest
+    export FAKE_SKOPEO_DIGEST="$OTHER"
+    guard --image ghcr.io/janrk/searxng --target-tag latest --track digest --digest "$MATCHING"
     [ "$status" -eq 0 ]
-    [ "$output" = "build" ]
+    [ "$output" = "decision=build" ]
 }
 
 # --- validation ---
 
-@test "fails when the plan has no targetTag" {
-    jq -n '{name:"x"}' > "$TEST_TMP/plan.json"
-    run --separate-stderr bash "$SCRIPTS_DIR/should-build.sh" \
-        --plan "$TEST_TMP/plan.json" --image ghcr.io/janrk/x
+@test "never prints build when the registry cannot be observed" {
+    export FAKE_SKOPEO_FAIL_ON="inspect"
+    export FAKE_SKOPEO_STDERR="received unexpected HTTP status: 403 Forbidden"
+    guard --image ghcr.io/janrk/nginx --target-tag 1.28.0 --track version
     [ "$status" -ne 0 ]
+    [ "$output" = "" ]
+    [[ "$stderr" == *"403 Forbidden"* ]]
+}
+
+@test "fails without a target tag" {
+    guard --image ghcr.io/janrk/x --track version
+    [ "$status" -ne 0 ]
+    [[ "$stderr" == *"--target-tag is required"* ]]
+}
+
+@test "fails without a track, rather than defaulting one" {
+    guard --image ghcr.io/janrk/x --target-tag 1.0
+    [ "$status" -ne 0 ]
+    [[ "$stderr" == *"--track is required"* ]]
 }
 
 @test "fails on an unknown track" {
-    writePlan "$TEST_TMP/plan.json" 1.0
-    run --separate-stderr bash "$SCRIPTS_DIR/should-build.sh" \
-        --plan "$TEST_TMP/plan.json" --image ghcr.io/janrk/x --track sideways
+    guard --image ghcr.io/janrk/x --target-tag 1.0 --track sideways
     [ "$status" -ne 0 ]
+}
+
+@test "digest: fails without an upstream digest to compare against" {
+    guard --image ghcr.io/janrk/searxng --target-tag latest --track digest
+    [ "$status" -ne 0 ]
+    [ "$output" = "" ]
+    [[ "$stderr" == *"--digest"* ]]
+}
+
+@test "takes no --plan: the marker is the reader's alone" {
+    printf '{}' > "$TEST_TMP/plan.json"
+    guard --plan "$TEST_TMP/plan.json" --image ghcr.io/janrk/x --target-tag 1.0 --track version
+    [ "$status" -ne 0 ]
+    [[ "$stderr" == *"unknown argument: --plan"* ]]
 }

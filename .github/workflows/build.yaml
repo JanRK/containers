@@ -4,6 +4,12 @@ name: build
 # plan in desired/<name>.json verbatim — it performs no substitution. Triggers
 # deliberately exclude state/** and history/** so the record job's commit does
 # not re-trigger a build (no [skip ci] needed).
+#
+# A step is an action, or one script invocation with literal arguments: no
+# pipelines, no case, no jq, no yq (spec 9.6). Logic lives in scripts/, where it
+# has a bats file; step-level if: is the one carve-out. Values reach a script
+# through env, never ${{ }} pasted into the shell, so a quote in a plan value
+# cannot end an argument.
 on:
   push:
     branches: [main]
@@ -34,13 +40,9 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install yq
-        run: |
-          set -euo pipefail
-          sudo curl -fsSL -o /usr/local/bin/yq \
-            https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
-          sudo chmod +x /usr/local/bin/yq
-
+      # yq comes from the runner image. Its one reader on this plane is the
+      # .enabled read in detect-jobs.sh: matrix selection is not execution, and
+      # must see jobs that have no marker (spec 9.7). No other job names it.
       - name: Detect jobs to build
         id: detect
         env:
@@ -48,22 +50,10 @@ jobs:
           DISPATCH_JOB: ${{ github.event.inputs.job }}
           BEFORE: ${{ github.event.before }}
           SHA: ${{ github.sha }}
-        run: |
-          set -euo pipefail
-          args=(--event "$EVENT" --repo-root .)
-          if [ "$EVENT" = "workflow_dispatch" ]; then
-            args+=(--dispatch-job "$DISPATCH_JOB")
-          elif [ -z "${BEFORE:-}" ] \
-              || [ "$BEFORE" = "0000000000000000000000000000000000000000" ] \
-              || ! git rev-parse -q --verify "$BEFORE^{commit}" >/dev/null 2>&1; then
-            args+=(--first-run true)
-          else
-            git diff --name-only "$BEFORE" "$SHA" > changed.txt
-            args+=(--changed-files changed.txt)
-          fi
-          jobs="$(bash scripts/detect-jobs.sh "${args[@]}")"
-          echo "Detected jobs: $jobs"
-          echo "jobs=$jobs" >> "$GITHUB_OUTPUT"
+        run: >-
+          bash scripts/detect-jobs.sh --event "$EVENT" --repo-root .
+          --dispatch-job "$DISPATCH_JOB" --before "$BEFORE" --sha "$SHA"
+          >> "$GITHUB_OUTPUT"
 
   # ---------------------------------------------------------------------------
   # build — one matrix leg per job; commits nothing, uploads a result artifact
@@ -87,15 +77,6 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Install tooling (yq, skopeo)
-        run: |
-          set -euo pipefail
-          sudo curl -fsSL -o /usr/local/bin/yq \
-            https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
-          sudo chmod +x /usr/local/bin/yq
-          sudo apt-get update
-          sudo apt-get install -y skopeo
-
       - name: Log in to GHCR
         uses: docker/login-action@v4
         with:
@@ -103,63 +84,43 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Read resolved plan and static config
+      # The plan loads once, here; every later step reads these outputs (spec
+      # 9.4). The config gate alone re-reads the marker, through read-plan.sh,
+      # for configDigest. A missing marker means the check requested no build
+      # (decision 3), while detect can still select the job from a jobs/<id>/**
+      # change, so it is a clean skip: every later step chains off this one.
+      - name: Read the plan
         id: cfg
+        if: hashFiles(format('desired/{0}.json', matrix.job)) != ''
         env:
-          JOB: ${{ matrix.job }}
-        run: |
-          set -euo pipefail
-          plan="desired/$JOB.json"
-          cfg="jobs/$JOB/job.yaml"
-          # A missing desired/<job>.json means the check requested no build for
-          # this job (already built / up to date, decision 3). detect can still
-          # select a job from a jobs/<id>/** mirror change, so treat a missing
-          # plan as a clean skip — the same "nothing to build" outcome as the
-          # registry-skip guard — rather than a hard failure.
-          if [ ! -f "$plan" ]; then
-            echo "No $plan — the check requested no build for $JOB; skipping."
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          [ -f "$cfg" ] || { echo "missing $cfg"; exit 1; }
-          echo "skip=false" >> "$GITHUB_OUTPUT"
-          registry="$(yq -r '.registry // "ghcr.io/janrk"' "$cfg")"
-          name="$(yq -r '.name' "$cfg")"
-          mode="$(yq -r '.mode' "$cfg")"
-          {
-            echo "plan=$plan"
-            echo "cfg=$cfg"
-            echo "mode=$mode"
-            echo "image=$registry/$name"
-            echo "track=$(yq -r '.mirror.track // "version"' "$cfg")"
-            echo "platforms=$(yq -r '.platforms // ["linux/amd64","linux/arm64"] | join(",")' "$cfg")"
-            echo "dockerfile=$(yq -r '.dockerfile // "Dockerfile"' "$cfg")"
-            echo "context=jobs/$JOB/$(yq -r '.context // "."' "$cfg")"
-            echo "targetTag=$(jq -r '.targetTag' "$plan")"
-          } >> "$GITHUB_OUTPUT"
-          # remote-dockerfile: the clone coordinates live in the resolved PLAN
-          # (repo, ref, dockerfile, context) — emit them so the build step can
-          # pass --repo/--ref and the in-clone paths to build.sh.
-          if [ "$mode" = "remote-dockerfile" ]; then
-            {
-              echo "repo=$(jq -r '.repo' "$plan")"
-              echo "ref=$(jq -r '.ref' "$plan")"
-              echo "remote_dockerfile=$(jq -r '.dockerfile // "Dockerfile"' "$plan")"
-              echo "remote_context=$(jq -r '.context // "."' "$plan")"
-            } >> "$GITHUB_OUTPUT"
-          fi
+          MARKER: desired/${{ matrix.job }}.json
+        run: bash scripts/read-plan.sh --marker "$MARKER" >> "$GITHUB_OUTPUT"
+
+      # Before the registry guard: a plan resolved from a job.yaml that has since
+      # changed leaves nothing to ask the registry about. A mismatch is a green
+      # skip, and self-heals on the next tick (spec 9.1).
+      - name: Config gate
+        id: config
+        if: steps.cfg.outcome == 'success'
+        env:
+          MARKER: desired/${{ matrix.job }}.json
+          JOB_YAML: jobs/${{ matrix.job }}/job.yaml
+        run: >-
+          bash scripts/compare-config-digest.sh --marker "$MARKER" --job-yaml "$JOB_YAML"
+          >> "$GITHUB_OUTPUT"
 
       - name: Registry-skip guard
         id: guard
-        if: steps.cfg.outputs.skip != 'true'
-        run: |
-          set -euo pipefail
-          decision="$(bash scripts/should-build.sh \
-            --plan '${{ steps.cfg.outputs.plan }}' \
-            --image '${{ steps.cfg.outputs.image }}' \
-            --track '${{ steps.cfg.outputs.track }}')"
-          echo "Guard decision: $decision"
-          echo "decision=$decision" >> "$GITHUB_OUTPUT"
+        if: steps.config.outputs.config == 'match'
+        env:
+          IMAGE: ${{ steps.cfg.outputs.image }}
+          TARGET_TAG: ${{ steps.cfg.outputs.targetTag }}
+          TRACK: ${{ steps.cfg.outputs.track }}
+          DIGEST: ${{ steps.cfg.outputs.digest }}
+        run: >-
+          bash scripts/should-build.sh --image "$IMAGE" --target-tag "$TARGET_TAG"
+          --track "$TRACK" --digest "$DIGEST"
+          >> "$GITHUB_OUTPUT"
 
       - name: Set up QEMU
         if: steps.guard.outputs.decision == 'build'
@@ -169,64 +130,82 @@ jobs:
         if: steps.guard.outputs.decision == 'build'
         uses: docker/setup-buildx-action@v4
 
-      - name: Build or mirror
-        if: steps.guard.outputs.decision == 'build'
+      # One step per mode, each with a literal argument list, so the run UI shows
+      # which of three failure modes happened (spec 9.6).
+      - name: Mirror
+        if: steps.guard.outputs.decision == 'build' && steps.cfg.outputs.mode == 'mirror'
         env:
-          MODE: ${{ steps.cfg.outputs.mode }}
+          SOURCE: ${{ steps.cfg.outputs.mirrorSource }}
           IMAGE: ${{ steps.cfg.outputs.image }}
-          PLAN: ${{ steps.cfg.outputs.plan }}
+          TARGET_TAG: ${{ steps.cfg.outputs.targetTag }}
+          EXTRA_TAGS: ${{ steps.cfg.outputs.extraTags }}
+          NAME: ${{ steps.cfg.outputs.name }}
+          RESOLVED: ${{ steps.cfg.outputs.resolved }}
+          RESULT: ${{ runner.temp }}/${{ matrix.job }}.json
+        run: >-
+          bash scripts/mirror.sh --source "$SOURCE" --image "$IMAGE"
+          --target-tag "$TARGET_TAG" --extra-tags "$EXTRA_TAGS"
+          --name "$NAME" --resolved "$RESOLVED" --result "$RESULT"
+
+      - name: Build (local Dockerfile)
+        if: steps.guard.outputs.decision == 'build' && steps.cfg.outputs.mode == 'local-dockerfile'
+        env:
+          IMAGE: ${{ steps.cfg.outputs.image }}
+          TARGET_TAG: ${{ steps.cfg.outputs.targetTag }}
+          EXTRA_TAGS: ${{ steps.cfg.outputs.extraTags }}
+          BUILD_ARGS: ${{ steps.cfg.outputs.buildArgs }}
           PLATFORMS: ${{ steps.cfg.outputs.platforms }}
           DOCKERFILE: ${{ steps.cfg.outputs.dockerfile }}
           CONTEXT: ${{ steps.cfg.outputs.context }}
-          SOURCE: ${{ github.server_url }}/${{ github.repository }}
+          REPO_URL: ${{ github.server_url }}/${{ github.repository }}
+          NAME: ${{ steps.cfg.outputs.name }}
+          RESOLVED: ${{ steps.cfg.outputs.resolved }}
+          RESULT: ${{ runner.temp }}/${{ matrix.job }}.json
+        run: >-
+          bash scripts/build.sh --image "$IMAGE" --target-tag "$TARGET_TAG"
+          --extra-tags "$EXTRA_TAGS" --build-args "$BUILD_ARGS" --platforms "$PLATFORMS"
+          --dockerfile "$DOCKERFILE" --context "$CONTEXT"
+          --push true --source "$REPO_URL"
+          --name "$NAME" --resolved "$RESOLVED" --result "$RESULT"
+
+      # Clones the public repo at the resolved ref; dockerfile and context are
+      # relative to the clone root (decision 1, ADR-0009).
+      - name: Build (remote Dockerfile)
+        if: steps.guard.outputs.decision == 'build' && steps.cfg.outputs.mode == 'remote-dockerfile'
+        env:
+          IMAGE: ${{ steps.cfg.outputs.image }}
+          TARGET_TAG: ${{ steps.cfg.outputs.targetTag }}
+          EXTRA_TAGS: ${{ steps.cfg.outputs.extraTags }}
+          BUILD_ARGS: ${{ steps.cfg.outputs.buildArgs }}
+          PLATFORMS: ${{ steps.cfg.outputs.platforms }}
+          DOCKERFILE: ${{ steps.cfg.outputs.dockerfile }}
+          CONTEXT: ${{ steps.cfg.outputs.context }}
           REPO: ${{ steps.cfg.outputs.repo }}
           REF: ${{ steps.cfg.outputs.ref }}
-          REMOTE_DOCKERFILE: ${{ steps.cfg.outputs.remote_dockerfile }}
-          REMOTE_CONTEXT: ${{ steps.cfg.outputs.remote_context }}
-          JOB: ${{ matrix.job }}
-        run: |
-          set -euo pipefail
-          mkdir -p artifacts
-          result="artifacts/$JOB.json"
-          case "$MODE" in
-            mirror)
-              bash scripts/mirror.sh --plan "$PLAN" --image "$IMAGE" --result "$result"
-              ;;
-            local-dockerfile)
-              bash scripts/build.sh --plan "$PLAN" --image "$IMAGE" \
-                --context "$CONTEXT" --dockerfile "$DOCKERFILE" \
-                --platforms "$PLATFORMS" --push true --source "$SOURCE" --result "$result"
-              ;;
-            remote-dockerfile)
-              # Clone the public repo at the resolved ref and build its
-              # Dockerfile; --context is the path within the clone (decision 1).
-              bash scripts/build.sh --plan "$PLAN" --image "$IMAGE" \
-                --repo "$REPO" --ref "$REF" \
-                --context "$REMOTE_CONTEXT" --dockerfile "$REMOTE_DOCKERFILE" \
-                --platforms "$PLATFORMS" --push true --source "$SOURCE" --result "$result"
-              ;;
-            *)
-              echo "unknown mode: $MODE"; exit 1
-              ;;
-          esac
+          REPO_URL: ${{ github.server_url }}/${{ github.repository }}
+          NAME: ${{ steps.cfg.outputs.name }}
+          RESOLVED: ${{ steps.cfg.outputs.resolved }}
+          RESULT: ${{ runner.temp }}/${{ matrix.job }}.json
+        run: >-
+          bash scripts/build.sh --image "$IMAGE" --target-tag "$TARGET_TAG"
+          --extra-tags "$EXTRA_TAGS" --build-args "$BUILD_ARGS" --platforms "$PLATFORMS"
+          --dockerfile "$DOCKERFILE" --context "$CONTEXT" --repo "$REPO" --ref "$REF"
+          --push true --source "$REPO_URL"
+          --name "$NAME" --resolved "$RESOLVED" --result "$RESULT"
 
       - name: Smoke test (native arch)
         if: steps.guard.outputs.decision == 'build'
         env:
-          IMAGE: ${{ steps.cfg.outputs.image }}
-          TARGET: ${{ steps.cfg.outputs.targetTag }}
-          CFG: ${{ steps.cfg.outputs.cfg }}
-        run: |
-          set -euo pipefail
-          tests="$(yq -o=json -I=0 '.test // []' "$CFG")"
-          bash scripts/smoke-test.sh --image "$IMAGE:$TARGET" --tests "$tests"
+          REF: ${{ steps.cfg.outputs.image }}:${{ steps.cfg.outputs.targetTag }}
+          TESTS: ${{ steps.cfg.outputs.test }}
+        run: bash scripts/smoke-test.sh --image "$REF" --tests "$TESTS"
 
       - name: Upload result artifact
         if: steps.guard.outputs.decision == 'build'
         uses: actions/upload-artifact@v7
         with:
           name: result-${{ matrix.job }}
-          path: artifacts/${{ matrix.job }}.json
+          path: ${{ runner.temp }}/${{ matrix.job }}.json
           if-no-files-found: error
 
   # ---------------------------------------------------------------------------
@@ -252,24 +231,13 @@ jobs:
           merge-multiple: true
 
       - name: Record state and history
-        run: |
-          set -euo pipefail
-          if [ ! -d _artifacts ] || [ -z "$(ls -A _artifacts 2>/dev/null)" ]; then
-            echo "No build artifacts — nothing to record."
-            exit 0
-          fi
-          bash scripts/record.sh \
-            --artifacts _artifacts --state-dir state --history-dir history
+        if: hashFiles('_artifacts/*.json') != ''
+        run: bash scripts/record.sh --artifacts _artifacts --state-dir state --history-dir history
 
+      # Skips cleanly when nothing was recorded.
       - name: Commit and push
-        run: |
-          set -euo pipefail
-          if [ -z "$(git status --porcelain state history)" ]; then
-            echo "No state/history changes to commit."
-            exit 0
-          fi
-          git config user.name "container-bot"
-          git config user.email "container-bot@users.noreply.github.com"
-          git add state history
-          git commit -m "record: update build state and history"
-          git push
+        run: >-
+          bash scripts/commit-record.sh --repo-root .
+          --name container-bot --email container-bot@users.noreply.github.com
+          --message "record: update build state and history"
+          --path state --path history
