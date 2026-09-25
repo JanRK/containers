@@ -1,0 +1,25 @@
+{
+  "plan": {
+    "name": "debian-trixie-slim",
+    "mode": "mirror",
+    "image": "ghcr.io/janrk/debian-trixie-slim",
+    "track": "version",
+    "targetTag": "trixie-20260918-slim",
+    "extraTags": [
+      "trixie-slim"
+    ],
+    "resolved": {
+      "version": "trixie-20260918-slim"
+    },
+    "platforms": [
+      "linux/amd64",
+      "linux/arm64"
+    ],
+    "test": [],
+    "mirrorSource": "docker.io/library/debian:trixie-20260918-slim"
+  },
+  "configDigest": "sha256:6e16f92b623f35a17fc2e47d35106481aeeab42398e01f10201b73f22b49880b",
+  "desiredAt": "2026-09-25T15:38:03Z",
+  "firstDesiredAt": "2026-09-25T15:38:03Z",
+  "attempt": 1
+}

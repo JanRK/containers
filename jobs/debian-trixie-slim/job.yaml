@@ -1,0 +1,15 @@
+name: debian-trixie-slim
+mode: mirror
+registry: ghcr.io/janrk
+tagFormat: "{version}"
+extraTags:
+  - trixie-slim
+sources:
+  - id: version
+    method: dockerRegistry
+    link: docker.io/library/debian
+    tagPolicy: debian-dated
+    tag: trixie
+mirror:
+  source: docker.io/library/debian
+  track: version
