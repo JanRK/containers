@@ -1,0 +1,27 @@
+name: airlock-base
+mode: local-dockerfile
+registry: ghcr.io/janrk
+platforms:
+  - linux/amd64
+  - linux/arm64
+tagFormat: "v{version}-b{basestamp}"
+extraTags:
+  - latest
+sources:
+  - id: version
+    method: literal
+    value: "0.1.0"
+  - id: base
+    method: localJob
+    link: debian-trixie-slim
+  - id: basestamp
+    method: localJob
+    link: debian-trixie-slim
+    tagPrefixStrip: "trixie-"
+    tagSuffixStrip: "-slim"
+buildArgs:
+  BASE_TAG: "{base}"
+test:
+  - entrypoint: sh
+    args: ["-c", "cat /etc/debian_version"]
+    expect: "13."
