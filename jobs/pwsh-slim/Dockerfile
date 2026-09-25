@@ -13,7 +13,7 @@ RUN set -eux; \
     wget --quiet --output-document=/tmp/hashes.sha256 "${release_url}/hashes.sha256"; \
     iconv -f UTF-16 -t UTF-8 /tmp/hashes.sha256 | tr -d '\r' | grep -F " *${package}" > /tmp/powershell-package.sha256; \
     (cd /tmp && sha256sum --check --status powershell-package.sha256); \
-    dpkg --install "/tmp/${package}" || apt-get install --fix-broken --yes --no-install-recommends; \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends "/tmp/${package}"; \
     rm -rf /var/lib/apt/lists/* /tmp/hashes.sha256 /tmp/powershell-package.sha256 "/tmp/${package}"; \
     installed_version="$(pwsh -NoLogo -NoProfile -Command '$PSVersionTable.PSVersion.ToString()')"; \
     [ "${installed_version}" = "${POWERSHELL_VERSION}" ] || { echo "ERROR: expected PowerShell ${POWERSHELL_VERSION}, found ${installed_version}" >&2; exit 1; }
