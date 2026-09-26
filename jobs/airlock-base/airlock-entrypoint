@@ -1,0 +1,16 @@
+#!/bin/sh
+set -eu
+
+export MISE_DATA_DIR="${MISE_DATA_DIR:-/workspace/.airlock/runtimes}"
+export MISE_CACHE_DIR="${MISE_CACHE_DIR:-/workspace/.airlock/cache}"
+export PATH="${MISE_DATA_DIR}/shims:${PATH:-/usr/local/bin:/usr/bin:/bin}"
+
+if ! airlock-setup; then
+    printf '%s\n' 'airlock-entrypoint: runtime setup failed; starting dashboard anyway' >&2
+fi
+
+if [ "$#" -eq 0 ]; then
+    set -- aoe serve
+fi
+
+exec "$@"

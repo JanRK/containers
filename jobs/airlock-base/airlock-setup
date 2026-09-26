@@ -1,0 +1,19 @@
+#!/bin/sh
+set -eu
+
+if ! command -v mise >/dev/null 2>&1; then
+    printf '%s\n' 'airlock-setup: mise is not installed' >&2
+    exit 1
+fi
+
+export MISE_DATA_DIR="${MISE_DATA_DIR:-/workspace/.airlock/runtimes}"
+export MISE_CACHE_DIR="${MISE_CACHE_DIR:-/workspace/.airlock/cache}"
+mkdir -p "$MISE_DATA_DIR" "$MISE_CACHE_DIR"
+
+if MISE_SAFE=1 mise install; then
+    exit 0
+else
+    mise_status=$?
+    printf '%s\n' 'airlock-setup: mise install failed' >&2
+    exit "$mise_status"
+fi

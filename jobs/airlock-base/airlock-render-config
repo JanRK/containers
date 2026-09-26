@@ -1,0 +1,3 @@
+#!/bin/sh
+printf '%s\n' 'airlock-render-config is a Slice 0 stub' >&2
+exit 64

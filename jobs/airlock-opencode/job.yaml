@@ -1,0 +1,40 @@
+name: airlock-opencode
+mode: local-dockerfile
+registry: ghcr.io/janrk
+platforms:
+  - linux/amd64
+tagFormat: "v{opencode}-n{node}-b{basestamp}"
+extraTags: []
+sources:
+  - id: opencode
+    method: githubRelease
+    link: anomalyco/opencode
+    tagPrefixStrip: v
+  - id: node
+    method: githubRelease
+    link: nodejs/node
+    tagPrefixStrip: v
+  - id: base
+    method: localJob
+    link: airlock-base
+  - id: basestamp
+    method: localJob
+    link: airlock-base
+    tagPrefixStrip: v
+buildArgs:
+  BASE_TAG: "{base}"
+  OPENCODE_VERSION: "{opencode}"
+  NODE_VERSION: "{node}"
+test:
+  - entrypoint: opencode
+    args: ["--version"]
+  - entrypoint: node
+    args: ["--version"]
+  - entrypoint: aoe
+    args: ["acp", "doctor"]
+    expect: "[OK] opencode"
+  - entrypoint: cat
+    args: ["/usr/local/share/airlock/image-family"]
+    expect: airlock-base
+  - entrypoint: sh
+    args: ["-c", "for tool in docker cloudflared tailscale; do command -v \"$tool\" >/dev/null 2>&1 && exit 1; done; exit 0"]

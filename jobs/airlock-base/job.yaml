@@ -3,25 +3,36 @@ mode: local-dockerfile
 registry: ghcr.io/janrk
 platforms:
   - linux/amd64
-  - linux/arm64
-tagFormat: "v{version}-b{basestamp}"
-extraTags:
-  - latest
+tagFormat: "v{aoe}-m{mise}-b{basestamp}"
+extraTags: []
 sources:
-  - id: version
-    method: literal
-    value: "0.1.0"
+  - id: aoe
+    method: githubRelease
+    link: agent-of-empires/agent-of-empires
+    tagPrefixStrip: v
+  - id: mise
+    method: githubRelease
+    link: jdx/mise
+    tagPrefixStrip: v
   - id: base
     method: localJob
-    link: debian-trixie-slim
+    link: pwsh-slim
   - id: basestamp
     method: localJob
-    link: debian-trixie-slim
-    tagPrefixStrip: "trixie-"
-    tagSuffixStrip: "-slim"
+    link: pwsh-slim
+    tagPrefixStrip: v
 buildArgs:
   BASE_TAG: "{base}"
+  AOE_VERSION: "{aoe}"
+  MISE_VERSION: "{mise}"
 test:
+  - entrypoint: aoe
+    args: ["--version"]
+  - entrypoint: mise
+    args: ["--version"]
+  - entrypoint: pwsh
+    args: ["-NoLogo", "-NoProfile", "-Command", "$PSVersionTable.PSVersion.ToString()"]
+  - entrypoint: airlock-setup
+    args: []
   - entrypoint: sh
-    args: ["-c", "cat /etc/debian_version"]
-    expect: "13."
+    args: ["-c", "for tool in docker cloudflared tailscale; do command -v \"$tool\" >/dev/null 2>&1 && exit 1; done; exit 0"]
