@@ -1,11 +1,12 @@
 {
-  "builtAt": "2026-09-25T16:50:45Z",
-  "builtDigest": "sha256:d9fe4a8aef7adc74d97ba3870cfe13b0ef139ebc94ae21c2d01900e9d088b5e4",
-  "builtTag": "v0.1.0-b20260918",
+  "builtAt": "2026-09-26T01:27:37Z",
+  "builtDigest": "sha256:a374e846e691bd09660558449c7814a3c445c2ef98cc81eea8c60d79766a6300",
+  "builtTag": "v1.17.2-m2026.9.14-b7.6.6-b0.1.0-b20260918",
   "name": "airlock-base",
   "resolved": {
-    "base": "trixie-20260918-slim",
-    "basestamp": "20260918",
-    "version": "0.1.0"
+    "aoe": "1.17.2",
+    "base": "v7.6.6-b0.1.0-b20260918",
+    "basestamp": "7.6.6-b0.1.0-b20260918",
+    "mise": "2026.9.14"
   }
 }
