@@ -5,6 +5,13 @@ export MISE_DATA_DIR="${MISE_DATA_DIR:-/workspace/.airlock/runtimes}"
 export MISE_CACHE_DIR="${MISE_CACHE_DIR:-/workspace/.airlock/cache}"
 export PATH="${MISE_DATA_DIR}/shims:${PATH:-/usr/local/bin:/usr/bin:/bin}"
 
+# The pod points HOME and the XDG bases at the volume; nothing else creates them.
+for dir in "${HOME:-}" "${XDG_CONFIG_HOME:-}" "${XDG_DATA_HOME:-}" "${XDG_STATE_HOME:-}" "${XDG_CACHE_HOME:-}"; do
+    if [ -n "$dir" ]; then
+        mkdir -p "$dir"
+    fi
+done
+
 if ! airlock-setup; then
     printf '%s\n' 'airlock-entrypoint: runtime setup failed; starting dashboard anyway' >&2
 fi

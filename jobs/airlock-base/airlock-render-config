@@ -1,3 +1,37 @@
 #!/bin/sh
-printf '%s\n' 'airlock-render-config is a Slice 0 stub' >&2
-exit 64
+# airlock-render-config SOURCE DESTINATION CHECKSUM
+# Copies the rendered dashboard config onto the volume only when the rendered source has changed.
+set -eu
+
+fail() {
+    { printf '%s\n' "airlock-render-config: $1" > /dev/termination-log; } 2>/dev/null || true
+    printf '%s\n' "airlock-render-config: $1" >&2
+    exit 1
+}
+
+[ "$#" -eq 3 ] || fail "expected SOURCE DESTINATION CHECKSUM, got $# arguments"
+source_file=$1
+destination=$2
+checksum=$3
+
+[ -r "$source_file" ] || fail "cannot read the rendered config at $source_file"
+sum=$(sha256sum < "$source_file") || fail "cannot hash $source_file"
+sum=${sum%% *}
+
+recorded=''
+if [ -f "$checksum" ]; then
+    recorded=$(sed -n 's/.*"sha256"[[:space:]]*:[[:space:]]*"\([0-9a-f]\{64\}\)".*/\1/p' "$checksum" | head -n 1)
+fi
+
+# The dashboard rewrites nothing when nothing needs migrating, so an unchanged source leaves its file alone.
+if [ "$sum" = "$recorded" ] && [ -f "$destination" ]; then
+    printf '%s\n' "airlock-render-config: $destination is current, left alone"
+    exit 0
+fi
+
+mkdir -p "$(dirname "$destination")" "$(dirname "$checksum")" || fail "cannot create the directories for $destination and $checksum"
+cp "$source_file" "$destination.airlock-tmp" || fail "cannot write $destination.airlock-tmp"
+mv -f "$destination.airlock-tmp" "$destination" || fail "cannot replace $destination"
+printf '{"sha256":"%s"}\n' "$sum" > "$checksum.airlock-tmp" || fail "cannot write $checksum.airlock-tmp"
+mv -f "$checksum.airlock-tmp" "$checksum" || fail "cannot record the checksum at $checksum"
+printf '%s\n' "airlock-render-config: wrote $destination"

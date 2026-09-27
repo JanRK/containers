@@ -3,9 +3,12 @@ mode: local-dockerfile
 registry: ghcr.io/janrk
 platforms:
   - linux/amd64
-tagFormat: "v{aoe}-m{mise}-b{basestamp}"
+tagFormat: "v{version}-aoe{aoe}-m{mise}-b{basestamp}"
 extraTags: []
 sources:
+  - id: version
+    method: literal
+    value: "0.1.0"
   - id: aoe
     method: githubRelease
     link: agent-of-empires/agent-of-empires
