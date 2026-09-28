@@ -1,11 +1,11 @@
 {
-  "builtAt": "2026-09-28T06:23:39Z",
-  "builtDigest": "sha256:2fa5cc62753855efe1ccdad01298ee19c7733b05054c5f83d8fa7542f0a31663",
-  "builtTag": "m0.5.3-o1.18.33-h2026.9.24",
+  "builtAt": "2026-09-28T12:27:46Z",
+  "builtDigest": "sha256:976f8d1ea09e47da0c1ada586a3905597d3e14074f5f2286fdb9dd19d1cdf39a",
+  "builtTag": "m0.6.0-o1.18.33-h2026.9.24",
   "name": "multica-agent",
   "resolved": {
     "hermes": "2026.9.24",
-    "multica": "0.5.3",
+    "multica": "0.6.0",
     "opencode": "1.18.33"
   }
 }
