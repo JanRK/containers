@@ -1,0 +1,36 @@
+{
+  "plan": {
+    "name": "opencode",
+    "mode": "local-dockerfile",
+    "image": "ghcr.io/janrk/opencode",
+    "track": "version",
+    "targetTag": "v1.18.33",
+    "extraTags": [
+      "latest"
+    ],
+    "resolved": {
+      "opencode": "1.18.33"
+    },
+    "platforms": [
+      "linux/amd64",
+      "linux/arm64"
+    ],
+    "test": [
+      {
+        "args": [
+          "--version"
+        ],
+        "entrypoint": "opencode"
+      }
+    ],
+    "buildArgs": {
+      "OPENCODE_VERSION": "1.18.33"
+    },
+    "context": "jobs/opencode",
+    "dockerfile": "jobs/opencode/Dockerfile"
+  },
+  "configDigest": "sha256:3818ea22facf09bb694c5b4acc44fa96dc12e6b52e53acb9669490c0121e70e7",
+  "desiredAt": "2026-09-28T06:17:53Z",
+  "firstDesiredAt": "2026-09-28T06:17:53Z",
+  "attempt": 1
+}
