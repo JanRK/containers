@@ -11,7 +11,7 @@ Automatically built and mirrored container images, published to the **GitHub Con
 
 ## How it works
 
-A scheduled check (every 6 hours) detects new upstream releases, resolves a fully-pinned build plan per
+A scheduled check (every 30 minutes) detects new upstream releases, resolves a fully-pinned build plan per
 job under `desired/`, and triggers the GitHub Actions workflow in `.github/workflows/build.yaml`. The
 workflow builds (or mirrors) each changed job as a **multi-arch** image (`linux/amd64`, `linux/arm64`),
 smoke-tests it, pushes it to `ghcr.io/janrk`, and records the result in `state/<job>.json` (latest
