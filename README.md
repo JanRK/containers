@@ -17,6 +17,8 @@ workflow builds (or mirrors) each changed job as a **multi-arch** image (`linux/
 smoke-tests it, pushes it to `ghcr.io/janrk`, and records the result in `state/<job>.json` (latest
 receipt) and `history/<job>.json` (last 30 builds).
 
+Dependent tags compose their own version with one stamp per direct base (for example, `v{version}-b{basestamp}`); cascade participants' `targetTag` values are write-once.
+
 ## Images
 
 | Job | Image | Tags |
