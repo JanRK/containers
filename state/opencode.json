@@ -1,9 +1,9 @@
 {
-  "builtAt": "2026-09-28T06:19:16Z",
-  "builtDigest": "sha256:79ee8bc33402dd8a8fd4fa284420e9ae340c6d41d42cec98d24623f4f889e524",
-  "builtTag": "v1.18.33",
+  "builtAt": "2026-09-30T22:49:07Z",
+  "builtDigest": "sha256:cdf4a03e8c6ff330641dfcaa1bc69bcadef20a94bc38dae5c557baa1ed034d0f",
+  "builtTag": "v1.18.34",
   "name": "opencode",
   "resolved": {
-    "opencode": "1.18.33"
+    "opencode": "1.18.34"
   }
 }
