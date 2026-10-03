@@ -1,13 +1,13 @@
 {
-  "builtAt": "2026-10-02T01:47:16Z",
-  "builtDigest": "sha256:168301c1747f0d8beeac1cbb4a73708218a0e08cdced4eb40c52c3407ca180a9",
-  "builtTag": "v0.1.0-aoe1.18.0-m2026.10.0-b7.6.6-b0.1.0-b20260918",
+  "builtAt": "2026-10-03T14:28:37Z",
+  "builtDigest": "sha256:f0b6946d63aa903b0b5d7b7e3c1815bd8cd1acd71e0c3fd750b6819db6f98d6c",
+  "builtTag": "v0.1.0-aoe1.18.0-m2026.10.1-b7.6.6-b0.1.0-b20260918",
   "name": "airlock-base",
   "resolved": {
     "aoe": "1.18.0",
     "base": "v7.6.6-b0.1.0-b20260918",
     "basestamp": "7.6.6-b0.1.0-b20260918",
-    "mise": "2026.10.0",
+    "mise": "2026.10.1",
     "version": "0.1.0"
   }
 }
