@@ -25,3 +25,5 @@ buildArgs:
 test:
   - entrypoint: pwsh
     args: ["-NoLogo", "-NoProfile", "-Command", "$PSVersionTable.PSVersion.ToString()"]
+  - entrypoint: pwsh
+    args: ["-NoLogo", "-NoProfile", "-NonInteractive", "-Command", "$ErrorActionPreference = 'Stop'; Import-Module Pester, PSScriptAnalyzer; Get-Module Pester, PSScriptAnalyzer | Format-Table -Property Name, Version"]

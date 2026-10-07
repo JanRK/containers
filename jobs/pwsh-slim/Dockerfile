@@ -16,4 +16,15 @@ RUN set -eux; \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends "/tmp/${package}"; \
     rm -rf /var/lib/apt/lists/* /tmp/hashes.sha256 /tmp/powershell-package.sha256 "/tmp/${package}"; \
     installed_version="$(pwsh -NoLogo -NoProfile -Command '$PSVersionTable.PSVersion.ToString()')"; \
-    [ "${installed_version}" = "${POWERSHELL_VERSION}" ] || { echo "ERROR: expected PowerShell ${POWERSHELL_VERSION}, found ${installed_version}" >&2; exit 1; }
+    [ "${installed_version}" = "${POWERSHELL_VERSION}" ] || { echo "ERROR: expected PowerShell ${POWERSHELL_VERSION}, found ${installed_version}" >&2; exit 1; }; \
+    rm -rf /root/.cache /root/.local /root/.wget-hsts /tmp/.dotnet
+
+# Drops ~280 MB of PSScriptAnalyzer profiles used only by PSUseCompatibleCommands/Types, which top out at pwsh 7.0.
+RUN set -eux; \
+    pwsh -NoLogo -NoProfile -NonInteractive -Command " \
+        \$ErrorActionPreference = 'Stop'; \
+        \$ProgressPreference = 'SilentlyContinue'; \
+        Install-PSResource -Name Pester, PSScriptAnalyzer -Repository PSGallery -Scope AllUsers -TrustRepository -Quiet; \
+        Get-Module -ListAvailable -Name Pester, PSScriptAnalyzer | Format-Table -Property Name, Version"; \
+    rm -rf /usr/local/share/powershell/Modules/PSScriptAnalyzer/*/compatibility_profiles; \
+    rm -rf /root/.cache /root/.local /tmp/.dotnet /tmp/*
