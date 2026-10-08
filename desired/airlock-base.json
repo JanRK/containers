@@ -1,0 +1,65 @@
+{
+  "plan": {
+    "name": "airlock-base",
+    "mode": "local-dockerfile",
+    "image": "ghcr.io/janrk/airlock-base",
+    "track": "version",
+    "targetTag": "v0.1.0-aoe1.19.0-m2026.10.5-b7.6.6-b0.1.0-b20261005",
+    "extraTags": [],
+    "resolved": {
+      "version": "0.1.0",
+      "aoe": "1.19.0",
+      "mise": "2026.10.5",
+      "base": "v7.6.6-b0.1.0-b20261005",
+      "basestamp": "7.6.6-b0.1.0-b20261005"
+    },
+    "platforms": [
+      "linux/amd64"
+    ],
+    "test": [
+      {
+        "args": [
+          "--version"
+        ],
+        "entrypoint": "aoe"
+      },
+      {
+        "args": [
+          "--version"
+        ],
+        "entrypoint": "mise"
+      },
+      {
+        "args": [
+          "-NoLogo",
+          "-NoProfile",
+          "-Command",
+          "$PSVersionTable.PSVersion.ToString()"
+        ],
+        "entrypoint": "pwsh"
+      },
+      {
+        "args": [],
+        "entrypoint": "airlock-setup"
+      },
+      {
+        "args": [
+          "-c",
+          "for tool in docker cloudflared tailscale; do command -v \"$tool\" >/dev/null 2>&1 && exit 1; done; exit 0"
+        ],
+        "entrypoint": "sh"
+      }
+    ],
+    "buildArgs": {
+      "AOE_VERSION": "1.19.0",
+      "BASE_TAG": "v7.6.6-b0.1.0-b20261005",
+      "MISE_VERSION": "2026.10.5"
+    },
+    "context": "jobs/airlock-base",
+    "dockerfile": "jobs/airlock-base/Dockerfile"
+  },
+  "configDigest": "sha256:a248ee2a66547981eea2aec375274b6204268472b0501295b688c9408b161c4c",
+  "desiredAt": "2026-10-08T21:17:52Z",
+  "firstDesiredAt": "2026-10-08T21:17:52Z",
+  "attempt": 1
+}
