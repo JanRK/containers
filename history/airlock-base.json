@@ -1,5 +1,17 @@
 [
   {
+    "builtTag": "v0.1.0-aoe1.19.0-m2026.10.6-b7.6.6-b0.1.0-b20261005",
+    "resolved": {
+      "version": "0.1.0",
+      "aoe": "1.19.0",
+      "mise": "2026.10.6",
+      "base": "v7.6.6-b0.1.0-b20261005",
+      "basestamp": "7.6.6-b0.1.0-b20261005"
+    },
+    "builtDigest": "sha256:387b8ebc4dd0bb18cbc63ceab52d85d47fac2946c702812556a9cf55d3a19b20",
+    "builtAt": "2026-10-09T10:17:58Z"
+  },
+  {
     "builtTag": "v0.1.0-aoe1.19.0-m2026.10.5-b7.6.6-b0.1.0-b20261005",
     "resolved": {
       "version": "0.1.0",
