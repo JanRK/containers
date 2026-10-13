@@ -1,0 +1,10 @@
+{
+  "builtAt": "2026-10-13T19:04:09Z",
+  "builtDigest": "sha256:bbb57dfdb2a01078b429c84c7a75184b6c8b12d61e52170e707b4504519babc4",
+  "builtTag": "v0.13.0",
+  "name": "mcp-proxy",
+  "resolved": {
+    "mcpproxy": "0.13.0",
+    "uv": "0.13.0"
+  }
+}
