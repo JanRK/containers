@@ -1,0 +1,52 @@
+{
+  "plan": {
+    "name": "pwsh-slim",
+    "mode": "local-dockerfile",
+    "image": "ghcr.io/janrk/pwsh-slim",
+    "track": "version",
+    "targetTag": "v7.4.21-b0.1.0-b20261005",
+    "extraTags": [
+      "latest"
+    ],
+    "resolved": {
+      "version": "7.4.21",
+      "base": "v0.1.0-b20261005",
+      "basestamp": "0.1.0-b20261005"
+    },
+    "platforms": [
+      "linux/amd64",
+      "linux/arm64"
+    ],
+    "test": [
+      {
+        "entrypoint": "pwsh",
+        "args": [
+          "-NoLogo",
+          "-NoProfile",
+          "-Command",
+          "$PSVersionTable.PSVersion.ToString()"
+        ]
+      },
+      {
+        "entrypoint": "pwsh",
+        "args": [
+          "-NoLogo",
+          "-NoProfile",
+          "-NonInteractive",
+          "-Command",
+          "$ErrorActionPreference = 'Stop'; Import-Module Pester, PSScriptAnalyzer; Get-Module Pester, PSScriptAnalyzer | Format-Table -Property Name, Version"
+        ]
+      }
+    ],
+    "buildArgs": {
+      "POWERSHELL_VERSION": "7.4.21",
+      "BASE_TAG": "v0.1.0-b20261005"
+    },
+    "context": "jobs/pwsh-slim",
+    "dockerfile": "jobs/pwsh-slim/Dockerfile"
+  },
+  "configDigest": "sha256:41e0b64cfbcfc108970f02add5dc259f0e6b8b64bf8ffde0dd230f45e03523de",
+  "desiredAt": "2026-10-13T20:18:09Z",
+  "firstDesiredAt": "2026-10-13T20:18:09Z",
+  "attempt": 1
+}
