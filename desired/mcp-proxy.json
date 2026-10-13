@@ -18,40 +18,40 @@
     ],
     "test": [
       {
-        "entrypoint": "mcp-proxy",
         "expect": "mcp-proxy",
+        "entrypoint": "mcp-proxy",
         "args": [
           "--version"
         ]
       },
       {
+        "entrypoint": "uvx",
         "args": [
           "--version"
-        ],
-        "entrypoint": "uvx"
+        ]
       },
       {
+        "entrypoint": "node",
         "args": [
           "--version"
-        ],
-        "entrypoint": "node"
+        ]
       },
       {
+        "entrypoint": "npx",
         "args": [
           "--version"
-        ],
-        "entrypoint": "npx"
+        ]
       }
     ],
     "buildArgs": {
-      "MCP_PROXY_VERSION": "0.13.0",
-      "UV_VERSION": "0.13.0"
+      "UV_VERSION": "0.13.0",
+      "MCP_PROXY_VERSION": "0.13.0"
     },
     "context": "jobs/mcp-proxy",
     "dockerfile": "jobs/mcp-proxy/Dockerfile"
   },
   "configDigest": "sha256:5fe71bcaf74161cae449f296aedd8d34bcf103c091d9671e10ed1701f74685c9",
-  "desiredAt": "2026-10-13T18:26:12Z",
+  "desiredAt": "2026-10-13T18:47:52Z",
   "firstDesiredAt": "2026-10-13T18:26:12Z",
-  "attempt": 1
+  "attempt": 2
 }
