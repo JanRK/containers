@@ -1,5 +1,15 @@
 [
   {
+    "builtTag": "v7.6.7-b0.1.0-b20261005",
+    "resolved": {
+      "version": "7.6.7",
+      "base": "v0.1.0-b20261005",
+      "basestamp": "0.1.0-b20261005"
+    },
+    "builtDigest": "sha256:af4d17cff4436f785ba71a0ec878f19aa3591810e3d07822ceba1cd2ed4d470b",
+    "builtAt": "2026-10-13T20:48:38Z"
+  },
+  {
     "builtTag": "v7.6.6-b0.1.0-b20261005",
     "resolved": {
       "version": "7.6.6",
