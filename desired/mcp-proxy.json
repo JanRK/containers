@@ -1,0 +1,57 @@
+{
+  "plan": {
+    "name": "mcp-proxy",
+    "mode": "local-dockerfile",
+    "image": "ghcr.io/janrk/mcp-proxy",
+    "track": "version",
+    "targetTag": "v0.13.0",
+    "extraTags": [
+      "latest"
+    ],
+    "resolved": {
+      "mcpproxy": "0.13.0",
+      "uv": "0.13.0"
+    },
+    "platforms": [
+      "linux/amd64",
+      "linux/arm64"
+    ],
+    "test": [
+      {
+        "entrypoint": "mcp-proxy",
+        "expect": "mcp-proxy",
+        "args": [
+          "--version"
+        ]
+      },
+      {
+        "args": [
+          "--version"
+        ],
+        "entrypoint": "uvx"
+      },
+      {
+        "args": [
+          "--version"
+        ],
+        "entrypoint": "node"
+      },
+      {
+        "args": [
+          "--version"
+        ],
+        "entrypoint": "npx"
+      }
+    ],
+    "buildArgs": {
+      "MCP_PROXY_VERSION": "0.13.0",
+      "UV_VERSION": "0.13.0"
+    },
+    "context": "jobs/mcp-proxy",
+    "dockerfile": "jobs/mcp-proxy/Dockerfile"
+  },
+  "configDigest": "sha256:5fe71bcaf74161cae449f296aedd8d34bcf103c091d9671e10ed1701f74685c9",
+  "desiredAt": "2026-10-13T18:26:12Z",
+  "firstDesiredAt": "2026-10-13T18:26:12Z",
+  "attempt": 1
+}

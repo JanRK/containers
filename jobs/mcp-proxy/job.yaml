@@ -1,0 +1,37 @@
+# mcp-proxy — upstream sparfenyuk/mcp-proxy plus uv/uvx and Node.js/npx, so the
+# proxy can spawn `uvx ...` and `npx ...` stdio MCP servers. Migrated from
+# github.com/JanRK/mcp-proxy.
+#
+# The tag tracks the upstream proxy only. uv is pinned via UV_VERSION but is not
+# in the tag, so a uv release alone does not rebuild; nodejs/npm come from the
+# base image's Alpine repo. Entrypoint (catatonit -- mcp-proxy) is inherited.
+name: mcp-proxy
+mode: local-dockerfile
+registry: ghcr.io/janrk
+platforms:
+  - linux/amd64
+  - linux/arm64
+tagFormat: "v{mcpproxy}"
+extraTags:
+  - latest
+sources:
+  - id: mcpproxy
+    method: dockerRegistry
+    link: ghcr.io/sparfenyuk/mcp-proxy
+    tagPrefixStrip: v
+  - id: uv
+    method: githubRelease
+    link: astral-sh/uv
+buildArgs:
+  MCP_PROXY_VERSION: "{mcpproxy}"
+  UV_VERSION: "{uv}"
+test:
+  - entrypoint: mcp-proxy
+    args: ["--version"]
+    expect: mcp-proxy
+  - entrypoint: uvx
+    args: ["--version"]
+  - entrypoint: node
+    args: ["--version"]
+  - entrypoint: npx
+    args: ["--version"]
