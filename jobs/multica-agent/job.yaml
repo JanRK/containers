@@ -5,6 +5,8 @@
 # Three upstream components are tracked and baked in at pinned versions so the
 # composite tag m<multica>-o<opencode>-h<hermes> is honest (decision 13).
 name: multica-agent
+# Disabled 2026-10-13: no longer used; hermes installer now lands in /root/.local/bin, so the hermes smoke test fails.
+enabled: false
 mode: local-dockerfile
 registry: ghcr.io/janrk
 platforms:
