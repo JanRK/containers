@@ -1,0 +1,11 @@
+[
+  {
+    "builtTag": "v1.18.1-sg4.2.0",
+    "resolved": {
+      "camofox": "1.18.1",
+      "supergateway": "4.2.0"
+    },
+    "builtDigest": "sha256:564fc2667adf834304a66d1759b979e48c06b248db836e9e010b66618d8fa8ae",
+    "builtAt": "2026-10-19T09:25:55Z"
+  }
+]
