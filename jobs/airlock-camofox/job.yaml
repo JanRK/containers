@@ -1,0 +1,27 @@
+# airlock-camofox — upstream camofox-browser plus Supergateway, so airlock can run the
+# image's own MCP adapter (/app/mcp/server.mjs) as streamable HTTP. Entrypoint and CMD
+# are inherited: with no override the image still starts the camofox REST server.
+name: airlock-camofox
+mode: local-dockerfile
+registry: ghcr.io/janrk
+platforms:
+  - linux/amd64
+tagFormat: "v{camofox}-sg{supergateway}"
+extraTags: []
+sources:
+  - id: camofox
+    method: dockerRegistry
+    link: ghcr.io/jo-inc/camofox-browser
+    tagPolicy: plain-semver
+  - id: supergateway
+    method: githubRelease
+    link: supercorp-ai/supergateway
+    tagPrefixStrip: v
+buildArgs:
+  CAMOFOX_VERSION: "{camofox}"
+  SUPERGATEWAY_VERSION: "{supergateway}"
+test:
+  - entrypoint: supergateway
+    args: ["--help"]
+  - entrypoint: node
+    args: ["--version"]
