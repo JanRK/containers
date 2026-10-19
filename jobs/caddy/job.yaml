@@ -1,0 +1,17 @@
+# Stock Caddy for airlock's front sidecar (needs 2.9+). Tracks X.Y.Z-alpine: same
+# Linux manifests as plain X.Y.Z, without the Windows entries.
+name: caddy
+mode: mirror
+registry: ghcr.io/janrk
+tagFormat: "{version}"
+extraTags:
+  - latest
+  - alpine
+sources:
+  - id: version
+    method: dockerRegistry
+    link: docker.io/library/caddy
+    tagPattern: '^(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)-alpine$'
+mirror:
+  source: docker.io/library/caddy
+  track: version
