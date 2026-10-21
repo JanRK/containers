@@ -3,17 +3,13 @@ mode: local-dockerfile
 registry: ghcr.io/janrk
 platforms:
   - linux/amd64
-tagFormat: "v{opencode}-n{node}-b{basestamp}"
+tagFormat: "v{opencode}-b{basestamp}"
 extraTags: []
 sources:
   - id: opencode
-    method: githubRelease
-    link: anomalyco/opencode
-    tagPrefixStrip: v
-  - id: node
-    method: githubRelease
-    link: nodejs/node
-    tagPrefixStrip: v
+    method: npmPackage
+    link: "@opencode/cli"
+    range: "2.x"
   - id: base
     method: localJob
     link: airlock-base
@@ -24,11 +20,8 @@ sources:
 buildArgs:
   BASE_TAG: "{base}"
   OPENCODE_VERSION: "{opencode}"
-  NODE_VERSION: "{node}"
 test:
   - entrypoint: opencode
-    args: ["--version"]
-  - entrypoint: node
     args: ["--version"]
   - entrypoint: aoe
     args: ["acp", "doctor"]
