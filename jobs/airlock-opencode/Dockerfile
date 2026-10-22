@@ -1,6 +1,10 @@
 ARG BASE_TAG=latest
 FROM ghcr.io/janrk/airlock-base:${BASE_TAG}
 
+# No phone-home update check; no release-highlights dialog in the TUI.
+ENV OPENCODE_DISABLE_AUTOUPDATE=1 \
+    OPENCODE_CLI_CONFIG_CONTENT='{"highlights":false}'
+
 ARG OPENCODE_VERSION
 
 RUN set -eux; \

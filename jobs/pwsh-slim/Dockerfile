@@ -1,6 +1,9 @@
 ARG BASE_TAG=latest
 FROM ghcr.io/janrk/debian-trixie-base:${BASE_TAG}
 
+ENV POWERSHELL_TELEMETRY_OPTOUT=1 \
+    POWERSHELL_UPDATECHECK=Off
+
 ARG POWERSHELL_VERSION
 RUN set -eux; \
     [ -n "${POWERSHELL_VERSION}" ] || { echo "ERROR: POWERSHELL_VERSION build arg is required" >&2; exit 1; }; \

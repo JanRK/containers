@@ -64,7 +64,12 @@ RUN chmod 0755 /usr/local/bin/airlock-setup /usr/local/bin/airlock-entrypoint /u
     && sh -n /usr/local/bin/airlock-entrypoint \
     && sh -n /usr/local/bin/airlock-render-config
 
+# DO_NOT_TRACK: AoE vetoes telemetry and skips the web consent modal.
+# MISE_USE_VERSIONS_HOST_TRACK: no install beacon to mise-versions.jdx.dev.
 ENV AIRLOCK_IMAGE_FAMILY=airlock-base \
+    DO_NOT_TRACK=1 \
+    MISE_USE_VERSIONS_HOST_TRACK=false \
+    npm_config_update_notifier=false \
     MISE_DATA_DIR=/workspace/.airlock/runtimes \
     MISE_CACHE_DIR=/workspace/.airlock/cache \
     PATH="/workspace/.airlock/runtimes/shims:/usr/local/bin:${PATH}"
