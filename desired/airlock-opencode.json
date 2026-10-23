@@ -16,10 +16,10 @@
     ],
     "test": [
       {
+        "entrypoint": "opencode",
         "args": [
           "--version"
-        ],
-        "entrypoint": "opencode"
+        ]
       },
       {
         "entrypoint": "aoe",
@@ -37,22 +37,22 @@
         "expect": "airlock-base"
       },
       {
+        "entrypoint": "sh",
         "args": [
           "-c",
           "for tool in docker cloudflared tailscale; do command -v \"$tool\" >/dev/null 2>&1 && exit 1; done; exit 0"
-        ],
-        "entrypoint": "sh"
+        ]
       }
     ],
     "buildArgs": {
-      "OPENCODE_VERSION": "2.1.4",
-      "BASE_TAG": "v0.1.0-aoe1.21.0-m2026.10.17-b7.6.8-b0.1.0-b20261005"
+      "BASE_TAG": "v0.1.0-aoe1.21.0-m2026.10.17-b7.6.8-b0.1.0-b20261005",
+      "OPENCODE_VERSION": "2.1.4"
     },
     "context": "jobs/airlock-opencode",
     "dockerfile": "jobs/airlock-opencode/Dockerfile"
   },
   "configDigest": "sha256:324151791f349e8db87240d0c8b3a957eb72f164aadd9c4485811fd98fc77f73",
-  "desiredAt": "2026-10-23T10:18:02Z",
+  "desiredAt": "2026-10-23T10:48:09Z",
   "firstDesiredAt": "2026-10-23T10:18:02Z",
-  "attempt": 1
+  "attempt": 2
 }
