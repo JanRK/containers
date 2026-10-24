@@ -1,10 +1,10 @@
 {
-  "builtAt": "2026-10-19T09:25:55Z",
-  "builtDigest": "sha256:564fc2667adf834304a66d1759b979e48c06b248db836e9e010b66618d8fa8ae",
-  "builtTag": "v1.18.1-sg4.2.0",
+  "builtAt": "2026-10-24T17:19:22Z",
+  "builtDigest": "sha256:98fc0e53ad59a465bac1b01a49b1acb40d91bacad2d3e5ffd430f99db81ff838",
+  "builtTag": "v1.18.1-sg4.2.1",
   "name": "airlock-camofox",
   "resolved": {
     "camofox": "1.18.1",
-    "supergateway": "4.2.0"
+    "supergateway": "4.2.1"
   }
 }
