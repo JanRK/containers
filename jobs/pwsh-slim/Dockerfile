@@ -27,7 +27,7 @@ RUN set -eux; \
     pwsh -NoLogo -NoProfile -NonInteractive -Command " \
         \$ErrorActionPreference = 'Stop'; \
         \$ProgressPreference = 'SilentlyContinue'; \
-        Install-PSResource -Name Pester, PSScriptAnalyzer -Repository PSGallery -Scope AllUsers -TrustRepository -Quiet; \
-        Get-Module -ListAvailable -Name Pester, PSScriptAnalyzer | Format-Table -Property Name, Version"; \
+        Install-PSResource -Name Pester, PSScriptAnalyzer, powershell-yaml -Repository PSGallery -Scope AllUsers -TrustRepository -Quiet; \
+        Get-Module -ListAvailable -Name Pester, PSScriptAnalyzer, powershell-yaml | Format-Table -Property Name, Version"; \
     rm -rf /usr/local/share/powershell/Modules/PSScriptAnalyzer/*/compatibility_profiles; \
     rm -rf /root/.cache /root/.local /tmp/.dotnet /tmp/*
