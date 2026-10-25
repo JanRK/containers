@@ -1,11 +1,11 @@
 {
-  "builtAt": "2026-10-22T17:20:08Z",
-  "builtDigest": "sha256:cdd573131f9f24b533733792a43dd42cbc97b5c3751e9282c59a288aecf428e5",
-  "builtTag": "v7.6.8-b0.1.0-b20261005",
+  "builtAt": "2026-10-25T17:50:01Z",
+  "builtDigest": "sha256:7a268388fd0b58795be3dbeed710069b3e582b79538c3952fef8fa837f6d710d",
+  "builtTag": "v7.6.9-b0.1.0-b20261005",
   "name": "pwsh-slim",
   "resolved": {
     "base": "v0.1.0-b20261005",
     "basestamp": "0.1.0-b20261005",
-    "version": "7.6.8"
+    "version": "7.6.9"
   }
 }
