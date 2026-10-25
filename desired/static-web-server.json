@@ -1,0 +1,25 @@
+{
+  "plan": {
+    "name": "static-web-server",
+    "mode": "mirror",
+    "image": "ghcr.io/janrk/static-web-server",
+    "track": "version",
+    "targetTag": "2.44.1",
+    "extraTags": [
+      "latest"
+    ],
+    "resolved": {
+      "version": "2.44.1"
+    },
+    "platforms": [
+      "linux/amd64",
+      "linux/arm64"
+    ],
+    "test": [],
+    "mirrorSource": "docker.io/joseluisq/static-web-server:2.44.1"
+  },
+  "configDigest": "sha256:0c36b644b8608e715e14f8b57fb4b91f8ae5324696117d4178993181baeb95c6",
+  "desiredAt": "2026-10-25T11:55:19Z",
+  "firstDesiredAt": "2026-10-25T11:55:19Z",
+  "attempt": 1
+}

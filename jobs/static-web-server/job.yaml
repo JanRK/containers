@@ -1,0 +1,16 @@
+name: static-web-server
+mode: mirror
+registry: ghcr.io/janrk
+platforms:
+  - linux/amd64
+  - linux/arm64
+tagFormat: "{version}"
+extraTags:
+  - latest
+sources:
+  - id: version
+    method: dockerRegistry
+    link: docker.io/joseluisq/static-web-server
+mirror:
+  source: docker.io/joseluisq/static-web-server
+  track: version
