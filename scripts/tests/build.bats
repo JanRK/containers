@@ -1,5 +1,5 @@
 #!/usr/bin/env bats
-# build.sh — docker buildx a local- or remote-dockerfile job from plan values.
+# build.sh — docker buildx pushes an image by digest for a later smoke test.
 
 load helpers
 
@@ -9,26 +9,26 @@ setupContext() {
     CTX="$TEST_TMP/jobs/multica-agent"
 }
 
-# A local-dockerfile invocation, with any extra flags appended.
 build_local() {
     setupContext
     run --separate-stderr bash "$SCRIPTS_DIR/build.sh" --image ghcr.io/janrk/multica-agent \
-        --target-tag m1.2.3-o0.5.0 --extra-tags '["latest"]' \
         --build-args '{"MULTICA_VERSION":"1.2.3","OPENCODE_VERSION":"0.5.0"}' \
         --platforms linux/amd64,linux/arm64 \
         --context "$CTX" --dockerfile "$CTX/Dockerfile" "$@"
 }
 
-@test "builds with platforms, dockerfile, build-args, all tags and push" {
+@test "pushes by digest with exact output and metadata-file arguments, without tags" {
     build_local
     [ "$status" -eq 0 ]
+    [ "$output" = "digest=sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" ]
     log_has "buildx build"
     log_has "--platform linux/amd64,linux/arm64"
     log_has "--build-arg MULTICA_VERSION=1.2.3"
     log_has "--build-arg OPENCODE_VERSION=0.5.0"
-    log_has "-t ghcr.io/janrk/multica-agent:m1.2.3-o0.5.0"
-    log_has "-t ghcr.io/janrk/multica-agent:latest"
-    log_has "--push"
+    log_has "--output type=image,name=ghcr.io/janrk/multica-agent,push-by-digest=true,name-canonical=true,push=true"
+    log_has "--metadata-file "
+    ! log_has " -t "
+    ! log_has "--push"
 }
 
 @test "local: uses the dockerfile and context paths verbatim, joining nothing" {
@@ -39,7 +39,7 @@ build_local() {
     [[ "$(cat "$CALL_LOG")" == *" $CTX" ]]
 }
 
-@test "passes no --pull: the resolved tag is immutable and runners are ephemeral" {
+@test "passes no --pull" {
     build_local
     [ "$status" -eq 0 ]
     ! log_has "--pull"
@@ -48,7 +48,7 @@ build_local() {
 @test "fails without platforms, rather than defaulting them" {
     setupContext
     run --separate-stderr bash "$SCRIPTS_DIR/build.sh" --image ghcr.io/janrk/x \
-        --target-tag 1.0 --extra-tags '[]' --build-args '{}' \
+        --build-args '{}' \
         --context "$CTX" --dockerfile "$CTX/Dockerfile"
     [ "$status" -ne 0 ]
     [[ "$stderr" == *"--platforms is required"* ]]
@@ -58,22 +58,11 @@ build_local() {
 @test "fails without a dockerfile, rather than defaulting one" {
     setupContext
     run --separate-stderr bash "$SCRIPTS_DIR/build.sh" --image ghcr.io/janrk/x \
-        --target-tag 1.0 --extra-tags '[]' --build-args '{}' --platforms linux/amd64 \
+        --build-args '{}' --platforms linux/amd64 \
         --context "$CTX"
     [ "$status" -ne 0 ]
     [[ "$stderr" == *"--dockerfile is required"* ]]
     ! log_has "buildx"
-}
-
-@test "builds a job with no build-args and no extra tags" {
-    setupContext
-    run --separate-stderr bash "$SCRIPTS_DIR/build.sh" --image ghcr.io/janrk/x \
-        --target-tag 1.0 --extra-tags '[]' --build-args '{}' --platforms linux/amd64 \
-        --context "$CTX" --dockerfile "$CTX/Dockerfile"
-    [ "$status" -eq 0 ]
-    log_has "-t ghcr.io/janrk/x:1.0"
-    [ "$(grep -o -- ' -t ' "$CALL_LOG" | wc -l)" -eq 1 ]
-    ! log_has "--build-arg"
 }
 
 @test "refuses build-args that are not a JSON object of strings, before building" {
@@ -81,45 +70,6 @@ build_local() {
     [ "$status" -ne 0 ]
     [[ "$stderr" == *"--build-args"* ]]
     ! log_has "buildx"
-}
-
-@test "refuses extra tags that are not a JSON array of strings, before building" {
-    build_local --extra-tags 'latest'
-    [ "$status" -ne 0 ]
-    [[ "$stderr" == *"--extra-tags"* ]]
-    ! log_has "buildx"
-}
-
-@test "writes a result artifact" {
-    export FAKE_SKOPEO_DIGEST="sha256:2222222222222222222222222222222222222222222222222222222222222222"
-    build_local --name multica-agent --resolved '{"multica":"1.2.3"}' --result "$TEST_TMP/result.json"
-    [ "$status" -eq 0 ]
-    local r="$TEST_TMP/result.json"
-    [ "$(jq -r '.name' "$r")" = "multica-agent" ]
-    [ "$(jq -r '.builtTag' "$r")" = "m1.2.3-o0.5.0" ]
-    [ "$(jq -r '.builtDigest' "$r")" = "sha256:2222222222222222222222222222222222222222222222222222222222222222" ]
-    [ "$(jq -r '.resolved.multica' "$r")" = "1.2.3" ]
-}
-
-@test "a result needs the name and resolved values it is written from" {
-    build_local --result "$TEST_TMP/result.json"
-    [ "$status" -ne 0 ]
-    [[ "$stderr" == *"--name"* ]]
-    ! log_has "buildx"
-}
-
-@test "takes no --plan: the marker is the reader's alone" {
-    printf '{}' > "$TEST_TMP/plan.json"
-    build_local --plan "$TEST_TMP/plan.json"
-    [ "$status" -ne 0 ]
-    [[ "$stderr" == *"unknown argument: --plan"* ]]
-    ! log_has "buildx"
-}
-
-@test "skips the push when --push false" {
-    build_local --push false
-    [ "$status" -eq 0 ]
-    ! log_has "--push"
 }
 
 @test "links the package to its repo when --source is given" {
@@ -135,23 +85,42 @@ build_local() {
     ! log_has "org.opencontainers.image.source"
 }
 
-@test "keeps the source label but drops the index annotation when not pushing" {
-    build_local --push false --source https://github.com/JanRK/containers
-    [ "$status" -eq 0 ]
-    log_has "--label org.opencontainers.image.source=https://github.com/JanRK/containers"
-    ! log_has "--annotation"
-}
-
 @test "propagates a docker build failure" {
     export FAKE_DOCKER_FAIL_ON="buildx"
     build_local
     [ "$status" -ne 0 ]
 }
 
+@test "dies when buildx reports no image digest" {
+    unset FAKE_BUILDX_DIGEST
+    build_local
+    [ "$status" -ne 0 ]
+    [ "$output" = "" ]
+    [[ "$stderr" == *"buildx reported no image digest:"* ]]
+}
+
+@test "dies when buildx reports a malformed image digest" {
+    export FAKE_BUILDX_DIGEST="sha256:BAD"
+    build_local
+    [ "$status" -ne 0 ]
+    [ "$output" = "" ]
+    [[ "$stderr" == *"buildx reported no image digest: sha256:BAD"* ]]
+}
+
+@test "removed arguments die as unknown arguments" {
+    local argument
+    for argument in --target-tag --extra-tags --push --result --name --resolved; do
+        build_local "$argument" ignored
+        [ "$status" -ne 0 ]
+        [[ "$stderr" == *"unknown argument: $argument"* ]]
+        ! log_has "buildx"
+    done
+}
+
 # A remote-dockerfile invocation: dockerfile and context are clone-root fragments.
 build_remote() {
     run --separate-stderr bash "$SCRIPTS_DIR/build.sh" --image ghcr.io/janrk/paperclip \
-        --target-tag v2.5.0 --extra-tags '["latest"]' --build-args '{"APP_VERSION":"2.5.0"}' \
+        --build-args '{"APP_VERSION":"2.5.0"}' \
         --platforms linux/amd64 --repo https://github.com/owner/paperclip "$@"
 }
 
@@ -159,13 +128,11 @@ build_remote() {
     build_remote --ref v2.5.0 --context . --dockerfile Dockerfile \
         --source https://github.com/owner/paperclip
     [ "$status" -eq 0 ]
+    [ "$output" = "digest=sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" ]
     log_has "git clone --depth 1 --branch v2.5.0 https://github.com/owner/paperclip"
     log_has "buildx build"
-    log_has "-t ghcr.io/janrk/paperclip:v2.5.0"
-    log_has "-t ghcr.io/janrk/paperclip:latest"
     log_has "--build-arg APP_VERSION=2.5.0"
     log_has "--label org.opencontainers.image.source=https://github.com/owner/paperclip"
-    log_has "--push"
 }
 
 @test "remote: dockerfile and context both join the clone root, and nothing else" {
@@ -186,6 +153,7 @@ build_remote() {
     export FAKE_GIT_FAIL_ON="--depth 1"
     build_remote --ref deadbeef --context . --dockerfile Dockerfile
     [ "$status" -eq 0 ]
+    [ "$output" = "digest=sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" ]
     log_has "checkout deadbeef"
     log_has "buildx build"
 }

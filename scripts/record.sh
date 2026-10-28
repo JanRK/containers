@@ -51,13 +51,14 @@ record_one() {
     jq -e '.builtAt' "$f" >/dev/null              || die "artifact $f missing .builtAt"
 
     # state receipt: only the receipt fields, sorted for stable diffs.
-    jq -S '{name, builtTag, builtDigest, builtAt, resolved}' "$f" > "$state_dir/$name.json"
+    jq -S '{name, builtTag, builtDigest, builtAt, resolved} + (if has("recipeDigest") then {recipeDigest} else {} end)' \
+        "$f" > "$state_dir/$name.json"
 
     # history: prepend newest-first, cap to N.
     local hist="$history_dir/$name.json" existing="[]"
     [ -f "$hist" ] && existing="$(cat "$hist")"
     jq --argjson cap "$cap" --argjson prev "$existing" \
-        '[{builtTag, resolved, builtDigest, builtAt}] + $prev | .[0:$cap]' \
+        '[{builtTag, resolved, builtDigest, builtAt} + (if has("recipeDigest") then {recipeDigest} else {} end)] + $prev | .[0:$cap]' \
         "$f" > "$hist"
 
     log "recorded $name -> $built_tag ($built_digest)"

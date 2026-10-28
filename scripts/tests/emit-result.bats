@@ -21,7 +21,27 @@ emit() {
     [ "$(jq -r '.builtDigest' <<<"$output")" = "$DIGEST" ]
     [ "$(jq -r '.builtAt' <<<"$output")" = "2026-06-20T12:00:00Z" ]
     [ "$(jq -c '.resolved' <<<"$output")" = '{"nginx":"1.28.0"}' ]
+    [ "$(jq 'has("recipeDigest")' <<<"$output")" = "false" ]
     log_has "docker://ghcr.io/janrk/nginx:1.28.0"
+}
+
+@test "includes recipeDigest when --recipe-digest is supplied" {
+    export FAKE_SKOPEO_DIGEST="$DIGEST"
+    run --separate-stderr bash "$SCRIPTS_DIR/emit-result.sh" \
+        --name nginx --image ghcr.io/janrk/nginx --built-tag 1.28.0 \
+        --resolved '{"nginx":"1.28.0"}' \
+        --recipe-digest sha256:3333333333333333333333333333333333333333333333333333333333333333
+    [ "$status" -eq 0 ]
+    [ "$(jq -r '.recipeDigest' <<<"$output")" = "sha256:3333333333333333333333333333333333333333333333333333333333333333" ]
+}
+
+@test "refuses a malformed recipe digest with the specified message" {
+    run --separate-stderr bash "$SCRIPTS_DIR/emit-result.sh" \
+        --name nginx --image ghcr.io/janrk/nginx --built-tag 1.28.0 \
+        --resolved '{"nginx":"1.28.0"}' --recipe-digest sha256:BAD
+    [ "$status" -ne 0 ]
+    [ "$output" = "" ]
+    [[ "$stderr" == *"--recipe-digest must be sha256:<64 hex>: sha256:BAD"* ]]
 }
 
 @test "dies rather than print an empty builtDigest when the pushed tag reads back absent" {

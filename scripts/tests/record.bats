@@ -25,6 +25,19 @@ writeArtifact() {  # path name builtTag [builtDigest]
     [ "$(jq -r '.builtAt' "$r")" = "2026-06-20T12:00:00Z" ]
     [ "$(jq -c '.resolved' "$r")" = '{"version":"1.28.0"}' ]
     [ "$(jq -c 'keys' "$r")" = '["builtAt","builtDigest","builtTag","name","resolved"]' ]
+    [ "$(jq '.[0] | has("recipeDigest")' "$TEST_TMP/history/nginx.json")" = "false" ]
+}
+
+@test "copies recipeDigest into receipt and history when present" {
+    mkdir -p "$TEST_TMP/art"
+    jq -n '{name:"nginx", builtTag:"1.28.0", builtDigest:"sha256:deadbeef", builtAt:"t",
+            resolved:{version:"1.28.0"}, recipeDigest:"sha256:3333333333333333333333333333333333333333333333333333333333333333"}' \
+        > "$TEST_TMP/art/nginx.json"
+    run bash "$SCRIPTS_DIR/record.sh" --artifacts "$TEST_TMP/art" \
+        --state-dir "$TEST_TMP/state" --history-dir "$TEST_TMP/history"
+    [ "$status" -eq 0 ]
+    [ "$(jq -r '.recipeDigest' "$TEST_TMP/state/nginx.json")" = "sha256:3333333333333333333333333333333333333333333333333333333333333333" ]
+    [ "$(jq -r '.[0].recipeDigest' "$TEST_TMP/history/nginx.json")" = "sha256:3333333333333333333333333333333333333333333333333333333333333333" ]
 }
 
 @test "the receipt stays flat and carries only what the artifact recorded" {

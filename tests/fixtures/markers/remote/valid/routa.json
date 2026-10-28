@@ -18,7 +18,8 @@
     "ref": "v1.4.0",
     "buildArgs": {},
     "context": ".",
-    "dockerfile": "docker/Dockerfile"
+    "dockerfile": "docker/Dockerfile",
+    "recipeDigest": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
   },
   "configDigest": "sha256:d9a1152e9f161b3561bf8b9d99fc762207854063ab4499ba0f0d0a5dff251802",
   "desiredAt": "2026-01-14T09:31:02Z",

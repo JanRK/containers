@@ -68,6 +68,7 @@ main() {
             emit .plan.buildArgs 'objects | tojson'
             emit .plan.dockerfile strings
             emit .plan.context strings
+            emit .plan.recipeDigest strings
             ;;
         remote-dockerfile)
             emit .plan.repo strings
@@ -75,6 +76,7 @@ main() {
             emit .plan.buildArgs 'objects | tojson'
             emit .plan.dockerfile strings
             emit .plan.context strings
+            emit .plan.recipeDigest strings
             ;;
         *) die "$marker: unknown .plan.mode: $mode" ;;
     esac

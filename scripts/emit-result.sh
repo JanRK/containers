@@ -5,7 +5,7 @@
 #
 # Usage:
 #   emit-result.sh --name <job> --image <registry/name> --built-tag <tag>
-#                  --resolved '<json object>'
+#                  --resolved '<json object>' [--recipe-digest <sha256:…>]
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -17,13 +17,14 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 now_utc() { date -u +%Y-%m-%dT%H:%M:%SZ; }
 
 main() {
-    local name="" image="" built_tag="" resolved=""
+    local name="" image="" built_tag="" resolved="" recipe_digest="" recipe_digest_given=false
     while [ $# -gt 0 ]; do
         case "$1" in
             --name)      name="$2";      shift 2 ;;
             --image)     image="$2";     shift 2 ;;
             --built-tag) built_tag="$2"; shift 2 ;;
             --resolved)  resolved="$2";  shift 2 ;;
+            --recipe-digest) recipe_digest="$2"; recipe_digest_given=true; shift 2 ;;
             *) die "unknown argument: $1" ;;
         esac
     done
@@ -34,6 +35,9 @@ main() {
     require_cmd jq
     jq -e 'type == "object"' <<<"$resolved" >/dev/null 2>&1 \
         || die "--resolved must be a JSON object: $resolved"
+    if [ "$recipe_digest_given" = true ] && [[ ! "$recipe_digest" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+        die "--recipe-digest must be sha256:<64 hex>: $recipe_digest"
+    fi
 
     local observation built_digest
     observation="$(bash "$SCRIPT_DIR/observe-tag.sh" --ref "$image:$built_tag")" \
@@ -50,7 +54,9 @@ main() {
         --arg builtDigest "$built_digest" \
         --arg builtAt "${BUILT_AT:-$(now_utc)}" \
         --argjson resolved "$resolved" \
-        '{name:$name, builtTag:$builtTag, builtDigest:$builtDigest, builtAt:$builtAt, resolved:$resolved}'
+        --arg recipeDigest "$recipe_digest" \
+        --argjson includeRecipeDigest "$recipe_digest_given" \
+        '{name:$name, builtTag:$builtTag, builtDigest:$builtDigest, builtAt:$builtAt, resolved:$resolved} + (if $includeRecipeDigest then {recipeDigest:$recipeDigest} else {} end)'
 }
 
 main "$@"

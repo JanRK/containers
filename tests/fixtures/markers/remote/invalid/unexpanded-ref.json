@@ -18,7 +18,8 @@
     "ref": "v{app}",
     "buildArgs": {},
     "context": ".",
-    "dockerfile": "docker/Dockerfile"
+    "dockerfile": "docker/Dockerfile",
+    "recipeDigest": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
   },
   "configDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
   "desiredAt": "2026-01-14T09:31:02Z",

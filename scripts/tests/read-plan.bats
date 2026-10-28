@@ -34,6 +34,7 @@ has_line() {
     has_line 'buildArgs={"BASE_TAG":"trixie-20260112","APP_VERSION":"1.4.0"}'
     has_line "dockerfile=jobs/airlock/Dockerfile"
     has_line "context=jobs/airlock"
+    has_line "recipeDigest=sha256:3333333333333333333333333333333333333333333333333333333333333333"
     has_line "configDigest=sha256:2be9b52780505880fb2bd029804c66c75eebf856c47757c325e94f79d061f356"
     has_line "desiredAt=2026-01-14T09:31:02Z"
     has_line "firstDesiredAt=2026-01-14T09:31:02Z"
@@ -49,6 +50,7 @@ has_line() {
     has_line 'buildArgs={}'
     has_line "dockerfile=docker/Dockerfile"
     has_line "context=."
+    has_line "recipeDigest=sha256:3333333333333333333333333333333333333333333333333333333333333333"
     has_line "platforms=linux/amd64,linux/arm64"
 }
 
@@ -92,6 +94,7 @@ expected_reason() {
         missing-attempt.json)              echo ".attempt is missing" ;;
         missing-config-digest.json)        echo ".configDigest is missing" ;;
         missing-target-tag.json)           echo ".plan.targetTag is missing" ;;
+        missing-recipe-digest.json)        echo ".plan.recipeDigest is missing" ;;
         missing-ref.json)                  echo ".plan.ref is missing" ;;
         null-build-args.json)              echo ".plan.buildArgs is missing, null" ;;
         null-mirror-source.json)           echo ".plan.mirrorSource is missing, null" ;;

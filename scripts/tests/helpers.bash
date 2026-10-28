@@ -9,6 +9,7 @@
 #   FAKE_SKOPEO_STDERR   - line skopeo prints to stderr when it fails
 #   FAKE_DOCKER_FAIL_ON  - substring; docker exits 1 if its args contain it
 #   FAKE_DOCKER_RC       - default docker exit code (default 0)
+#   FAKE_BUILDX_DIGEST   - digest written to the buildx metadata file
 #   FAKE_GIT_FAIL_ON     - substring; git exits 1 if its args contain it
 #   FAKE_GIT_MKDIR       - subdirectory `git clone` also creates in the clone
 
@@ -29,6 +30,7 @@ setup() {
 
     # Deterministic timestamp for result-artifact emission.
     export BUILT_AT="2026-06-20T12:00:00Z"
+    export FAKE_BUILDX_DIGEST="sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 }
 
 teardown() {
@@ -56,8 +58,22 @@ EOF
             cat > "$FAKE_BIN/docker" <<'EOF'
 #!/usr/bin/env bash
 echo "docker $*" >> "$CALL_LOG"
-[ -n "${FAKE_DOCKER_STDOUT:-}" ] && echo "$FAKE_DOCKER_STDOUT"
-if [ -n "${FAKE_DOCKER_FAIL_ON:-}" ] && [[ "$*" == *"$FAKE_DOCKER_FAIL_ON"* ]]; then exit 1; fi
+docker_args="$*"
+if [ -n "${FAKE_DOCKER_STDOUT:-}" ]; then
+  echo "$FAKE_DOCKER_STDOUT"
+else
+  echo "fake docker stdout"
+fi
+if [ "$1" = "buildx" ] && [ -n "${FAKE_BUILDX_DIGEST+x}" ]; then
+  while [ "$#" -gt 0 ]; do
+    if [ "$1" = "--metadata-file" ]; then
+      printf '{"containerimage.digest":"%s"}\n' "$FAKE_BUILDX_DIGEST" > "$2"
+      break
+    fi
+    shift
+  done
+fi
+if [ -n "${FAKE_DOCKER_FAIL_ON:-}" ] && [[ "$docker_args" == *"$FAKE_DOCKER_FAIL_ON"* ]]; then exit 1; fi
 exit "${FAKE_DOCKER_RC:-0}"
 EOF
             chmod +x "$FAKE_BIN/docker"
@@ -68,6 +84,7 @@ EOF
             cat > "$FAKE_BIN/git" <<'EOF'
 #!/usr/bin/env bash
 echo "git $*" >> "$CALL_LOG"
+echo "fake git stdout"
 if [ -n "${FAKE_GIT_FAIL_ON:-}" ] && [[ "$*" == *"$FAKE_GIT_FAIL_ON"* ]]; then exit 1; fi
 if [ "$1" = "clone" ]; then
   for dest in "$@"; do :; done

@@ -1,6 +1,7 @@
 name: build
 
-# Build / mirror pipeline (decisions 3, 4, 9, 11). GitHub executes the resolved
+# Build / mirror pipeline (decisions 3, 4, 9, 11): push by digest, smoke by
+# digest, then tag. GitHub executes the resolved
 # plan in desired/<name>.json verbatim — it performs no substitution. Triggers
 # deliberately exclude state/** and history/** so the record job's commit does
 # not re-trigger a build (no [skip ci] needed).
@@ -130,9 +131,10 @@ jobs:
         if: steps.guard.outputs.decision == 'build'
         uses: docker/setup-buildx-action@v4
 
-      # One step per mode, each with a literal argument list, so the run UI shows
-      # which of three failure modes happened (spec 9.6).
+      # Build modes push by digest, smoke by digest, then tag. One step per mode,
+      # each with a literal argument list, so the run UI shows distinct failures.
       - name: Mirror
+        id: mirror
         if: steps.guard.outputs.decision == 'build' && steps.cfg.outputs.mode == 'mirror'
         env:
           SOURCE: ${{ steps.cfg.outputs.mirrorSource }}
@@ -148,34 +150,27 @@ jobs:
           --name "$NAME" --resolved "$RESOLVED" --result "$RESULT"
 
       - name: Build (local Dockerfile)
+        id: build-local
         if: steps.guard.outputs.decision == 'build' && steps.cfg.outputs.mode == 'local-dockerfile'
         env:
           IMAGE: ${{ steps.cfg.outputs.image }}
-          TARGET_TAG: ${{ steps.cfg.outputs.targetTag }}
-          EXTRA_TAGS: ${{ steps.cfg.outputs.extraTags }}
           BUILD_ARGS: ${{ steps.cfg.outputs.buildArgs }}
           PLATFORMS: ${{ steps.cfg.outputs.platforms }}
           DOCKERFILE: ${{ steps.cfg.outputs.dockerfile }}
           CONTEXT: ${{ steps.cfg.outputs.context }}
           REPO_URL: ${{ github.server_url }}/${{ github.repository }}
-          NAME: ${{ steps.cfg.outputs.name }}
-          RESOLVED: ${{ steps.cfg.outputs.resolved }}
-          RESULT: ${{ runner.temp }}/${{ matrix.job }}.json
         run: >-
-          bash scripts/build.sh --image "$IMAGE" --target-tag "$TARGET_TAG"
-          --extra-tags "$EXTRA_TAGS" --build-args "$BUILD_ARGS" --platforms "$PLATFORMS"
-          --dockerfile "$DOCKERFILE" --context "$CONTEXT"
-          --push true --source "$REPO_URL"
-          --name "$NAME" --resolved "$RESOLVED" --result "$RESULT"
+          bash scripts/build.sh --image "$IMAGE" --build-args "$BUILD_ARGS"
+          --platforms "$PLATFORMS" --dockerfile "$DOCKERFILE" --context "$CONTEXT"
+          --source "$REPO_URL" >> "$GITHUB_OUTPUT"
 
       # Clones the public repo at the resolved ref; dockerfile and context are
       # relative to the clone root (decision 1, ADR-0009).
       - name: Build (remote Dockerfile)
+        id: build-remote
         if: steps.guard.outputs.decision == 'build' && steps.cfg.outputs.mode == 'remote-dockerfile'
         env:
           IMAGE: ${{ steps.cfg.outputs.image }}
-          TARGET_TAG: ${{ steps.cfg.outputs.targetTag }}
-          EXTRA_TAGS: ${{ steps.cfg.outputs.extraTags }}
           BUILD_ARGS: ${{ steps.cfg.outputs.buildArgs }}
           PLATFORMS: ${{ steps.cfg.outputs.platforms }}
           DOCKERFILE: ${{ steps.cfg.outputs.dockerfile }}
@@ -183,22 +178,41 @@ jobs:
           REPO: ${{ steps.cfg.outputs.repo }}
           REF: ${{ steps.cfg.outputs.ref }}
           REPO_URL: ${{ github.server_url }}/${{ github.repository }}
-          NAME: ${{ steps.cfg.outputs.name }}
-          RESOLVED: ${{ steps.cfg.outputs.resolved }}
-          RESULT: ${{ runner.temp }}/${{ matrix.job }}.json
         run: >-
-          bash scripts/build.sh --image "$IMAGE" --target-tag "$TARGET_TAG"
-          --extra-tags "$EXTRA_TAGS" --build-args "$BUILD_ARGS" --platforms "$PLATFORMS"
-          --dockerfile "$DOCKERFILE" --context "$CONTEXT" --repo "$REPO" --ref "$REF"
-          --push true --source "$REPO_URL"
-          --name "$NAME" --resolved "$RESOLVED" --result "$RESULT"
+          bash scripts/build.sh --image "$IMAGE" --build-args "$BUILD_ARGS"
+          --platforms "$PLATFORMS" --dockerfile "$DOCKERFILE" --context "$CONTEXT"
+          --repo "$REPO" --ref "$REF" --source "$REPO_URL" >> "$GITHUB_OUTPUT"
 
-      - name: Smoke test (native arch)
-        if: steps.guard.outputs.decision == 'build'
+      - name: Smoke test (mirror)
+        if: steps.mirror.outcome == 'success'
         env:
           REF: ${{ steps.cfg.outputs.image }}:${{ steps.cfg.outputs.targetTag }}
           TESTS: ${{ steps.cfg.outputs.test }}
         run: bash scripts/smoke-test.sh --image "$REF" --tests "$TESTS"
+
+      - name: Smoke test (build)
+        id: smoke-build
+        if: steps.build-local.outcome == 'success' || steps.build-remote.outcome == 'success'
+        env:
+          REF: ${{ steps.cfg.outputs.image }}@${{ steps.build-local.outputs.digest || steps.build-remote.outputs.digest }}
+          TESTS: ${{ steps.cfg.outputs.test }}
+        run: bash scripts/smoke-test.sh --image "$REF" --tests "$TESTS"
+
+      - name: Publish tags
+        if: steps.smoke-build.outcome == 'success'
+        env:
+          IMAGE: ${{ steps.cfg.outputs.image }}
+          DIGEST: ${{ steps.build-local.outputs.digest || steps.build-remote.outputs.digest }}
+          TARGET_TAG: ${{ steps.cfg.outputs.targetTag }}
+          EXTRA_TAGS: ${{ steps.cfg.outputs.extraTags }}
+          NAME: ${{ steps.cfg.outputs.name }}
+          RESOLVED: ${{ steps.cfg.outputs.resolved }}
+          RECIPE_DIGEST: ${{ steps.cfg.outputs.recipeDigest }}
+          RESULT: ${{ runner.temp }}/${{ matrix.job }}.json
+        run: >-
+          bash scripts/publish-tags.sh --image "$IMAGE" --digest "$DIGEST"
+          --target-tag "$TARGET_TAG" --extra-tags "$EXTRA_TAGS" --name "$NAME"
+          --resolved "$RESOLVED" --recipe-digest "$RECIPE_DIGEST" --result "$RESULT"
 
       - name: Upload result artifact
         if: steps.guard.outputs.decision == 'build'

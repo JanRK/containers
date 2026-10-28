@@ -13,9 +13,10 @@ Automatically built and mirrored container images, published to the **GitHub Con
 
 A scheduled check (every 30 minutes) detects new upstream releases, resolves a fully-pinned build plan per
 job under `desired/`, and triggers the GitHub Actions workflow in `.github/workflows/build.yaml`. The
-workflow builds (or mirrors) each changed job as a **multi-arch** image (`linux/amd64`, `linux/arm64`),
-smoke-tests it, pushes it to `ghcr.io/janrk`, and records the result in `state/<job>.json` (latest
-receipt) and `history/<job>.json` (last 30 builds).
+workflow builds (or mirrors) each changed job as a **multi-arch** image (`linux/amd64`, `linux/arm64`).
+For build modes, it builds it, pushes it untagged, smoke-tests it by digest, then tags it in
+`ghcr.io/janrk`, and records the result in `state/<job>.json` (latest receipt) and
+`history/<job>.json` (last 30 builds). Mirrors are copied and smoke-tested by tag as before.
 
 Dependent tags compose their own version with one stamp per direct base (for example, `v{version}-b{basestamp}`); cascade participants' `targetTag` values are write-once.
 

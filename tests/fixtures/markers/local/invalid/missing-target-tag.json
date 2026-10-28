@@ -18,7 +18,8 @@
       "APP_VERSION": "1.4.0"
     },
     "context": "jobs/airlock",
-    "dockerfile": "jobs/airlock/Dockerfile"
+    "dockerfile": "jobs/airlock/Dockerfile",
+    "recipeDigest": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
   },
   "configDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
   "desiredAt": "2026-01-14T09:31:02Z",
