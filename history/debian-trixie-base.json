@@ -1,5 +1,15 @@
 [
   {
+    "builtTag": "v0.1.0-b20261027",
+    "resolved": {
+      "version": "0.1.0",
+      "base": "trixie-20261027-slim",
+      "basestamp": "20261027"
+    },
+    "builtDigest": "sha256:be8ca6f7c2495e8fe66a378ebbb3a9348019f3ceee669766350a90698aa0f9a6",
+    "builtAt": "2026-10-28T03:21:23Z"
+  },
+  {
     "builtTag": "v0.1.0-b20261005",
     "resolved": {
       "version": "0.1.0",
