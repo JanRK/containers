@@ -1,0 +1,58 @@
+{
+  "plan": {
+    "name": "airlock-opencode",
+    "mode": "local-dockerfile",
+    "image": "ghcr.io/janrk/airlock-opencode",
+    "track": "version",
+    "targetTag": "v2.2.0-b0.1.0-aoe1.21.0-m2026.10.22-b7.6.9-b0.1.0-b20261027",
+    "extraTags": [],
+    "resolved": {
+      "opencode": "2.2.0",
+      "base": "v0.1.0-aoe1.21.0-m2026.10.22-b7.6.9-b0.1.0-b20261027",
+      "basestamp": "0.1.0-aoe1.21.0-m2026.10.22-b7.6.9-b0.1.0-b20261027"
+    },
+    "platforms": [
+      "linux/amd64"
+    ],
+    "test": [
+      {
+        "entrypoint": "opencode",
+        "args": [
+          "--version"
+        ]
+      },
+      {
+        "entrypoint": "aoe",
+        "expect": "[OK] opencode",
+        "args": [
+          "acp",
+          "doctor"
+        ]
+      },
+      {
+        "entrypoint": "cat",
+        "expect": "airlock-base",
+        "args": [
+          "/usr/local/share/airlock/image-family"
+        ]
+      },
+      {
+        "entrypoint": "sh",
+        "args": [
+          "-c",
+          "for tool in docker cloudflared tailscale; do command -v \"$tool\" >/dev/null 2>&1 && exit 1; done; exit 0"
+        ]
+      }
+    ],
+    "buildArgs": {
+      "BASE_TAG": "v0.1.0-aoe1.21.0-m2026.10.22-b7.6.9-b0.1.0-b20261027",
+      "OPENCODE_VERSION": "2.2.0"
+    },
+    "context": "jobs/airlock-opencode",
+    "dockerfile": "jobs/airlock-opencode/Dockerfile"
+  },
+  "configDigest": "sha256:324151791f349e8db87240d0c8b3a957eb72f164aadd9c4485811fd98fc77f73",
+  "desiredAt": "2026-10-28T21:47:57Z",
+  "firstDesiredAt": "2026-10-28T21:47:57Z",
+  "attempt": 1
+}
