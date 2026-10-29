@@ -1,10 +1,11 @@
 {
-  "builtAt": "2026-10-13T19:04:09Z",
-  "builtDigest": "sha256:bbb57dfdb2a01078b429c84c7a75184b6c8b12d61e52170e707b4504519babc4",
-  "builtTag": "v0.13.0",
+  "builtAt": "2026-10-28T23:52:31Z",
+  "builtDigest": "sha256:5344af01494fa86a035ca20d23bc903e3be14497589272b8a5292d20e0265855",
+  "builtTag": "v0.13.0-r1",
   "name": "mcp-proxy",
+  "recipeDigest": "sha256:53453e8b05292d7c40f1ad47c42efb8d71f5e23904c3cd32905950ba0eb705e7",
   "resolved": {
     "mcpproxy": "0.13.0",
-    "uv": "0.13.0"
+    "uv": "0.13.6"
   }
 }

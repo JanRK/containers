@@ -1,5 +1,16 @@
 [
   {
+    "builtTag": "v0.1.0-r1-b20261027",
+    "resolved": {
+      "version": "0.1.0",
+      "base": "trixie-20261027-slim",
+      "basestamp": "20261027"
+    },
+    "builtDigest": "sha256:174ac260dbc5ec33298bb0542dcb71bad457bd39aa52e5a9d9955eb1a268f340",
+    "builtAt": "2026-10-28T23:54:31Z",
+    "recipeDigest": "sha256:b2988094879e2f69690c8d7137175c3ea900fa7a2105316180cd147c69e1c0c8"
+  },
+  {
     "builtTag": "v0.1.0-b20261027",
     "resolved": {
       "version": "0.1.0",

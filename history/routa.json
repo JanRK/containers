@@ -1,5 +1,14 @@
 [
   {
+    "builtTag": "v0.19.0-r1",
+    "resolved": {
+      "app": "0.19.0"
+    },
+    "builtDigest": "sha256:52252694bc9ed2640910f39d6fdbc771d707a6209cc34a0a107e471c088f275a",
+    "builtAt": "2026-10-29T00:17:16Z",
+    "recipeDigest": "sha256:e3294057c429215f08450db019cf0bcadb9f6c8381eb37965ca110f2d9dd7aad"
+  },
+  {
     "builtTag": "v0.19.0",
     "resolved": {
       "app": "0.19.0"

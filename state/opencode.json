@@ -1,8 +1,9 @@
 {
-  "builtAt": "2026-10-28T06:20:19Z",
-  "builtDigest": "sha256:8ad9801ced584bdeb6b140a0ccfe733d622ce66fe0299fe3f756d851c09a8035",
-  "builtTag": "v1.19.5",
+  "builtAt": "2026-10-28T23:54:14Z",
+  "builtDigest": "sha256:1eb0f50106e09cef29812f8adf720599681b7099d77a3513b44b970e3996260d",
+  "builtTag": "v1.19.5-r1",
   "name": "opencode",
+  "recipeDigest": "sha256:30fbb6f615e3515f1457a99301939b6ec5a31c27d3a895281cfaf21023a459e8",
   "resolved": {
     "opencode": "1.19.5"
   }

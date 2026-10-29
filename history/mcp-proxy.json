@@ -1,5 +1,15 @@
 [
   {
+    "builtTag": "v0.13.0-r1",
+    "resolved": {
+      "mcpproxy": "0.13.0",
+      "uv": "0.13.6"
+    },
+    "builtDigest": "sha256:5344af01494fa86a035ca20d23bc903e3be14497589272b8a5292d20e0265855",
+    "builtAt": "2026-10-28T23:52:31Z",
+    "recipeDigest": "sha256:53453e8b05292d7c40f1ad47c42efb8d71f5e23904c3cd32905950ba0eb705e7"
+  },
+  {
     "builtTag": "v0.13.0",
     "resolved": {
       "mcpproxy": "0.13.0",
