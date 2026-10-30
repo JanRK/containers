@@ -1,0 +1,92 @@
+{
+  "plan": {
+    "name": "airlock-base",
+    "mode": "local-dockerfile",
+    "image": "ghcr.io/janrk/airlock-base",
+    "track": "version",
+    "targetTag": "v0.1.0-aoe1.21.0-m2026.10.24-b7.6.9-b0.1.0-r1-b20261027",
+    "extraTags": [],
+    "resolved": {
+      "version": "0.1.0",
+      "aoe": "1.21.0",
+      "mise": "2026.10.24",
+      "base": "v7.6.9-b0.1.0-r1-b20261027",
+      "basestamp": "7.6.9-b0.1.0-r1-b20261027"
+    },
+    "platforms": [
+      "linux/amd64"
+    ],
+    "test": [
+      {
+        "entrypoint": "aoe",
+        "args": [
+          "--version"
+        ]
+      },
+      {
+        "entrypoint": "mise",
+        "args": [
+          "--version"
+        ]
+      },
+      {
+        "entrypoint": "node",
+        "args": [
+          "--version"
+        ]
+      },
+      {
+        "entrypoint": "jq",
+        "args": [
+          "--version"
+        ]
+      },
+      {
+        "entrypoint": "sh",
+        "args": [
+          "-c",
+          "missing=; for tool in dig fd file lsof make patch ps shellcheck tree xz; do command -v \"$tool\" >/dev/null 2>&1 || missing=\"$missing $tool\"; done; [ -z \"$missing\" ] || echo \"missing:$missing\" >&2; [ -z \"$missing\" ]"
+        ]
+      },
+      {
+        "entrypoint": "sh",
+        "args": [
+          "-c",
+          "yq --version | grep -q mikefarah"
+        ]
+      },
+      {
+        "entrypoint": "pwsh",
+        "args": [
+          "-NoLogo",
+          "-NoProfile",
+          "-Command",
+          "$PSVersionTable.PSVersion.ToString()"
+        ]
+      },
+      {
+        "entrypoint": "airlock-setup",
+        "args": []
+      },
+      {
+        "entrypoint": "sh",
+        "args": [
+          "-c",
+          "for tool in docker cloudflared tailscale; do command -v \"$tool\" >/dev/null 2>&1 && exit 1; done; exit 0"
+        ]
+      }
+    ],
+    "buildArgs": {
+      "BASE_TAG": "v7.6.9-b0.1.0-r1-b20261027",
+      "AOE_VERSION": "1.21.0",
+      "MISE_VERSION": "2026.10.24"
+    },
+    "context": "jobs/airlock-base",
+    "dockerfile": "jobs/airlock-base/Dockerfile",
+    "recipeDigest": "sha256:afccf5f0f2b3cd95577a7801d28fabd8ceb785e6ed0cca19a6825cdca9402bc2"
+  },
+  "configDigest": "sha256:8340ea6f1d536805d764b14200a2e5460072a7331588acfdfd1f92539cbc6abf",
+  "desiredAt": "2026-10-30T10:18:08Z",
+  "firstDesiredAt": "2026-10-30T10:18:08Z",
+  "attempt": 1
+}
