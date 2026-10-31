@@ -1,12 +1,12 @@
 {
-  "builtAt": "2026-10-30T23:49:14Z",
-  "builtDigest": "sha256:eb36ba5e715a5b39a9d61043675c42d49a052b5853609ddd42621af33efcb157",
-  "builtTag": "v2.2.5-b0.1.0-aoe1.21.0-m2026.10.24-b7.6.9-b0.1.0-r1-b20261027",
+  "builtAt": "2026-10-31T11:19:14Z",
+  "builtDigest": "sha256:923704fa21f24b9989678432a097b11d8475bc1a3707c83d4ac8a56be987cc4c",
+  "builtTag": "v2.2.5-b0.1.0-aoe1.21.0-m2026.10.25-b7.6.9-b0.1.0-r1-b20261027",
   "name": "airlock-opencode",
   "recipeDigest": "sha256:89661e25e173f3bc4abb6115169c0800ad0c61484ec4935d8a8ae9b6bcaa2824",
   "resolved": {
-    "base": "v0.1.0-aoe1.21.0-m2026.10.24-b7.6.9-b0.1.0-r1-b20261027",
-    "basestamp": "0.1.0-aoe1.21.0-m2026.10.24-b7.6.9-b0.1.0-r1-b20261027",
+    "base": "v0.1.0-aoe1.21.0-m2026.10.25-b7.6.9-b0.1.0-r1-b20261027",
+    "basestamp": "0.1.0-aoe1.21.0-m2026.10.25-b7.6.9-b0.1.0-r1-b20261027",
     "opencode": "2.2.5"
   }
 }
