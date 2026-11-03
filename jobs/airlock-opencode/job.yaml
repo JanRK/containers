@@ -30,4 +30,4 @@ test:
     args: ["/usr/local/share/airlock/image-family"]
     expect: airlock-base
   - entrypoint: sh
-    args: ["-c", "for tool in docker cloudflared tailscale; do command -v \"$tool\" >/dev/null 2>&1 && exit 1; done; exit 0"]
+    args: ["-c", "for tool in cloudflared tailscale; do command -v \"$tool\" >/dev/null 2>&1 && exit 1; done; exit 0"]

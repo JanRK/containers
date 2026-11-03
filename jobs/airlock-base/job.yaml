@@ -45,5 +45,11 @@ test:
     args: ["-NoLogo", "-NoProfile", "-Command", "$PSVersionTable.PSVersion.ToString()"]
   - entrypoint: airlock-setup
     args: []
+  - entrypoint: docker
+    args: ["--version"]
+  - entrypoint: docker
+    args: ["compose", "version"]
   - entrypoint: sh
-    args: ["-c", "for tool in docker cloudflared tailscale; do command -v \"$tool\" >/dev/null 2>&1 && exit 1; done; exit 0"]
+    args: ["-c", "! docker buildx version >/dev/null 2>&1"]
+  - entrypoint: sh
+    args: ["-c", "for tool in cloudflared tailscale; do command -v \"$tool\" >/dev/null 2>&1 && exit 1; done; exit 0"]

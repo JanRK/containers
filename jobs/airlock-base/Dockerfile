@@ -10,6 +10,18 @@ RUN set -eux; \
     apt-get update; \
     apt-get install --yes --no-install-recommends bind9-dnsutils ca-certificates curl fd-find file git gzip jq libatomic1 lsof make \
         openssh-client patch procps ripgrep shellcheck tar tini tmux tree xz-utils; \
+    debian_codename="$(. /etc/os-release && printf '%s' "${VERSION_CODENAME:-}")"; \
+    [ -n "${debian_codename}" ] || { echo "ERROR: VERSION_CODENAME missing from /etc/os-release" >&2; exit 1; }; \
+    install -m 0755 -d /etc/apt/keyrings; \
+    curl -fsSL https://download.docker.com/linux/debian/gpg --output /etc/apt/keyrings/docker.asc; \
+    chmod 0644 /etc/apt/keyrings/docker.asc; \
+    printf 'Types: deb\nURIs: https://download.docker.com/linux/debian\nSuites: %s\nComponents: stable\nArchitectures: %s\nSigned-By: /etc/apt/keyrings/docker.asc\n' \
+        "${debian_codename}" "$(dpkg --print-architecture)" > /etc/apt/sources.list.d/docker.sources; \
+    apt-get update; \
+    apt-get install --yes --no-install-recommends docker-ce-cli docker-compose-plugin; \
+    if dpkg-query --show --showformat='${Status}' docker-buildx-plugin 2>/dev/null | grep -q 'install ok installed'; then \
+        echo "ERROR: docker-buildx-plugin must not be installed" >&2; exit 1; \
+    fi; \
     rm -rf /var/lib/apt/lists/*; \
     ln -s /usr/bin/fdfind /usr/local/bin/fd; \
     aoe_version="${AOE_VERSION#v}"; \

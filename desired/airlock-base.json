@@ -1,0 +1,112 @@
+{
+  "plan": {
+    "name": "airlock-base",
+    "mode": "local-dockerfile",
+    "image": "ghcr.io/janrk/airlock-base",
+    "track": "version",
+    "targetTag": "v0.1.0-aoe1.21.0-m2026.11.0-r1-b7.6.9-b0.1.0-r1-b20261027",
+    "extraTags": [],
+    "resolved": {
+      "version": "0.1.0",
+      "aoe": "1.21.0",
+      "mise": "2026.11.0",
+      "base": "v7.6.9-b0.1.0-r1-b20261027",
+      "basestamp": "7.6.9-b0.1.0-r1-b20261027"
+    },
+    "platforms": [
+      "linux/amd64"
+    ],
+    "test": [
+      {
+        "args": [
+          "--version"
+        ],
+        "entrypoint": "aoe"
+      },
+      {
+        "args": [
+          "--version"
+        ],
+        "entrypoint": "mise"
+      },
+      {
+        "args": [
+          "--version"
+        ],
+        "entrypoint": "node"
+      },
+      {
+        "args": [
+          "--version"
+        ],
+        "entrypoint": "jq"
+      },
+      {
+        "args": [
+          "-c",
+          "missing=; for tool in dig fd file lsof make patch ps shellcheck tree xz; do command -v \"$tool\" >/dev/null 2>&1 || missing=\"$missing $tool\"; done; [ -z \"$missing\" ] || echo \"missing:$missing\" >&2; [ -z \"$missing\" ]"
+        ],
+        "entrypoint": "sh"
+      },
+      {
+        "args": [
+          "-c",
+          "yq --version | grep -q mikefarah"
+        ],
+        "entrypoint": "sh"
+      },
+      {
+        "args": [
+          "-NoLogo",
+          "-NoProfile",
+          "-Command",
+          "$PSVersionTable.PSVersion.ToString()"
+        ],
+        "entrypoint": "pwsh"
+      },
+      {
+        "args": [],
+        "entrypoint": "airlock-setup"
+      },
+      {
+        "args": [
+          "--version"
+        ],
+        "entrypoint": "docker"
+      },
+      {
+        "args": [
+          "compose",
+          "version"
+        ],
+        "entrypoint": "docker"
+      },
+      {
+        "args": [
+          "-c",
+          "! docker buildx version >/dev/null 2>&1"
+        ],
+        "entrypoint": "sh"
+      },
+      {
+        "args": [
+          "-c",
+          "for tool in cloudflared tailscale; do command -v \"$tool\" >/dev/null 2>&1 && exit 1; done; exit 0"
+        ],
+        "entrypoint": "sh"
+      }
+    ],
+    "buildArgs": {
+      "AOE_VERSION": "1.21.0",
+      "BASE_TAG": "v7.6.9-b0.1.0-r1-b20261027",
+      "MISE_VERSION": "2026.11.0"
+    },
+    "context": "jobs/airlock-base",
+    "dockerfile": "jobs/airlock-base/Dockerfile",
+    "recipeDigest": "sha256:6955ac2f4f579c182a74f6eb5f092fba6be4945328f470dd558da02496c16436"
+  },
+  "configDigest": "sha256:3157435a4e76d9042a1e4d979bebba2c8f0702ce6c50354acd564d9f1a2eb3c1",
+  "desiredAt": "2026-11-03T19:21:11Z",
+  "firstDesiredAt": "2026-11-03T19:21:11Z",
+  "attempt": 1
+}
