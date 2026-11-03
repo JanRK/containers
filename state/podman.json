@@ -1,0 +1,9 @@
+{
+  "builtAt": "2026-11-03T18:35:02Z",
+  "builtDigest": "sha256:0ccbc4e7f79f9c33e7fc959be59f714abbc0f4c9cffbe14f5bceff537a014738",
+  "builtTag": "v5.8.9-immutable",
+  "name": "podman",
+  "resolved": {
+    "version": "v5.8.9-immutable"
+  }
+}
