@@ -1,0 +1,25 @@
+{
+  "plan": {
+    "name": "podman",
+    "mode": "mirror",
+    "image": "ghcr.io/janrk/podman",
+    "track": "version",
+    "targetTag": "v5.8.9-immutable",
+    "extraTags": [
+      "latest"
+    ],
+    "resolved": {
+      "version": "v5.8.9-immutable"
+    },
+    "platforms": [
+      "linux/amd64",
+      "linux/arm64"
+    ],
+    "test": [],
+    "mirrorSource": "quay.io/podman/stable:v5.8.9-immutable"
+  },
+  "configDigest": "sha256:123b4a244b5c137cd43e3975a82bc11467d2e8c3a5ede96962eece059c4b11a6",
+  "desiredAt": "2026-11-03T18:33:14Z",
+  "firstDesiredAt": "2026-11-03T18:33:14Z",
+  "attempt": 1
+}

@@ -1,0 +1,16 @@
+# Stock Podman for airlock's container engine sidecar. Tracks upstream's
+# vX.Y.Z-immutable tags: Quay rebuilds plain vX.Y.Z in place.
+name: podman
+mode: mirror
+registry: ghcr.io/janrk
+tagFormat: "{version}"
+extraTags:
+  - latest
+sources:
+  - id: version
+    method: dockerRegistry
+    link: quay.io/podman/stable
+    tagPattern: '^v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)-immutable$'
+mirror:
+  source: quay.io/podman/stable
+  track: version
