@@ -1,5 +1,13 @@
 [
   {
+    "builtTag": "2.11.9-alpine",
+    "resolved": {
+      "version": "2.11.9-alpine"
+    },
+    "builtDigest": "sha256:e8d293dca35c033c4eb958d77b9096098e34da2987da3954acc0028267c6cc9b",
+    "builtAt": "2026-11-05T21:19:12Z"
+  },
+  {
     "builtTag": "2.11.7-alpine",
     "resolved": {
       "version": "2.11.7-alpine"

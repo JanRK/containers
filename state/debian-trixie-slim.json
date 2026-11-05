@@ -1,9 +1,9 @@
 {
-  "builtAt": "2026-10-28T02:50:01Z",
-  "builtDigest": "sha256:26c37952d274874448dd4f0943fc79bfb7c3d9cc8c8004ac4dc987489ca931be",
-  "builtTag": "trixie-20261027-slim",
+  "builtAt": "2026-11-05T21:20:19Z",
+  "builtDigest": "sha256:a72b4433de1cf7d6bae0c4cee74d0547f58601a643b3375f070c51600d63b6b2",
+  "builtTag": "trixie-20261104-slim",
   "name": "debian-trixie-slim",
   "resolved": {
-    "version": "trixie-20261027-slim"
+    "version": "trixie-20261104-slim"
   }
 }
