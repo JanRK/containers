@@ -1,11 +1,11 @@
 {
-  "builtAt": "2026-11-10T09:50:16Z",
-  "builtDigest": "sha256:400cad2d7126c29d48e730f47da690bd52071db6ffd24dcf4ceb2c4c8d9607b4",
-  "builtTag": "v1.18.1-sg4.2.2",
+  "builtAt": "2026-11-10T17:20:56Z",
+  "builtDigest": "sha256:086c7d306a2a515f0b343056ed2f4e6f35210041e95496b918f5742510d55f6b",
+  "builtTag": "v1.19.0-sg4.2.2",
   "name": "airlock-camofox",
   "recipeDigest": "sha256:0aeaae4fe081519c93ff4bda426befecd97ac7c8ed4d676ebe75f07a14b2e21b",
   "resolved": {
-    "camofox": "1.18.1",
+    "camofox": "1.19.0",
     "supergateway": "4.2.2"
   }
 }
