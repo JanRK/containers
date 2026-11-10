@@ -1,5 +1,16 @@
 [
   {
+    "builtTag": "v7.7.0-b0.1.0-b20261104",
+    "resolved": {
+      "version": "7.7.0",
+      "base": "v0.1.0-b20261104",
+      "basestamp": "0.1.0-b20261104"
+    },
+    "builtDigest": "sha256:bba6af98493ba65f5c1e0b2e97aa80f448e58f0057fcd04af80d137a0ebe737f",
+    "builtAt": "2026-11-10T20:49:57Z",
+    "recipeDigest": "sha256:d31e87926b335ccc71214f95b0caba3cff1a395140669fe1d004ffed18282c02"
+  },
+  {
     "builtTag": "v7.6.10-b0.1.0-b20261104",
     "resolved": {
       "version": "7.6.10",
