@@ -1,5 +1,18 @@
 [
   {
+    "builtTag": "v0.1.0-aoe1.23.0-m2026.11.6-b7.7.0-b0.1.0-b20261104",
+    "resolved": {
+      "version": "0.1.0",
+      "aoe": "1.23.0",
+      "mise": "2026.11.6",
+      "base": "v7.7.0-b0.1.0-b20261104",
+      "basestamp": "7.7.0-b0.1.0-b20261104"
+    },
+    "builtDigest": "sha256:303e5cd53ad5e35e049a52bb76f0736b022fcfc11f8ba5d6bfa9fecb876abf3c",
+    "builtAt": "2026-11-11T22:20:49Z",
+    "recipeDigest": "sha256:6955ac2f4f579c182a74f6eb5f092fba6be4945328f470dd558da02496c16436"
+  },
+  {
     "builtTag": "v0.1.0-aoe1.22.3-m2026.11.6-b7.7.0-b0.1.0-b20261104",
     "resolved": {
       "version": "0.1.0",
@@ -364,17 +377,5 @@
     },
     "builtDigest": "sha256:07cbe2c6e0eb45a1bdc1bc874c0be5866e8c5918764d9aa1f2b2988d827fb2fd",
     "builtAt": "2026-10-18T18:49:21Z"
-  },
-  {
-    "builtTag": "v0.1.0-aoe1.20.0-m2026.10.13-b7.6.7-b0.1.0-b20261005",
-    "resolved": {
-      "version": "0.1.0",
-      "aoe": "1.20.0",
-      "mise": "2026.10.13",
-      "base": "v7.6.7-b0.1.0-b20261005",
-      "basestamp": "7.6.7-b0.1.0-b20261005"
-    },
-    "builtDigest": "sha256:53f7c75862c657602d08e530dfea2bc806a86e99c85d1b1b82606e3fd426469d",
-    "builtAt": "2026-10-17T18:49:23Z"
   }
 ]
