@@ -1,0 +1,60 @@
+{
+  "plan": {
+    "name": "actions-runner",
+    "mode": "local-dockerfile",
+    "image": "ghcr.io/janrk/actions-runner",
+    "track": "version",
+    "targetTag": "v0.1.0-yq4.54.3-b7.7.0-b0.1.0-b20261104",
+    "extraTags": [
+      "latest"
+    ],
+    "resolved": {
+      "version": "0.1.0",
+      "yq": "4.54.3",
+      "base": "v7.7.0-b0.1.0-b20261104",
+      "basestamp": "7.7.0-b0.1.0-b20261104"
+    },
+    "platforms": [
+      "linux/amd64"
+    ],
+    "test": [
+      {
+        "expect": "tools-ok",
+        "entrypoint": "sh",
+        "args": [
+          "-c",
+          "git --version && skopeo --version && gh --version && jq --version && rsync --version && ssh -V && bats --version && echo tools-ok"
+        ]
+      },
+      {
+        "entrypoint": "sh",
+        "args": [
+          "-c",
+          "yq --version | grep -q mikefarah"
+        ]
+      },
+      {
+        "expect": "modules-ok",
+        "entrypoint": "pwsh",
+        "args": [
+          "-NoLogo",
+          "-NoProfile",
+          "-NonInteractive",
+          "-Command",
+          "$ErrorActionPreference = 'Stop'; Import-Module Pester, PSScriptAnalyzer, powershell-yaml; 'modules-' + (ConvertFrom-Yaml 'k: ok').k"
+        ]
+      }
+    ],
+    "buildArgs": {
+      "YQ_VERSION": "4.54.3",
+      "BASE_TAG": "v7.7.0-b0.1.0-b20261104"
+    },
+    "context": "jobs/actions-runner",
+    "dockerfile": "jobs/actions-runner/Dockerfile",
+    "recipeDigest": "sha256:0119a6aebeed70782088966e4d991ab9f329ed760a997e7f0e61447068ed0cf2"
+  },
+  "configDigest": "sha256:03c35e5cdab84c2567655e62515c10c45543cc40f95475eddcb0c333ab766cdd",
+  "desiredAt": "2026-11-13T01:50:54Z",
+  "firstDesiredAt": "2026-11-13T01:50:54Z",
+  "attempt": 1
+}

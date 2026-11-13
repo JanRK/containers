@@ -1,0 +1,35 @@
+name: actions-runner
+mode: local-dockerfile
+registry: ghcr.io/janrk
+platforms:
+  - linux/amd64
+tagFormat: "v{version}-yq{yq}-b{basestamp}"
+extraTags:
+  - latest
+sources:
+  - id: version
+    method: literal
+    value: "0.1.0"
+  - id: yq
+    method: githubRelease
+    link: mikefarah/yq
+    tagPrefixStrip: v
+  - id: base
+    method: localJob
+    link: pwsh-slim
+  - id: basestamp
+    method: localJob
+    link: pwsh-slim
+    tagPrefixStrip: v
+buildArgs:
+  BASE_TAG: "{base}"
+  YQ_VERSION: "{yq}"
+test:
+  - entrypoint: sh
+    args: ["-c", "git --version && skopeo --version && gh --version && jq --version && rsync --version && ssh -V && bats --version && echo tools-ok"]
+    expect: "tools-ok"
+  - entrypoint: sh
+    args: ["-c", "yq --version | grep -q mikefarah"]
+  - entrypoint: pwsh
+    args: ["-NoLogo", "-NoProfile", "-NonInteractive", "-Command", "$ErrorActionPreference = 'Stop'; Import-Module Pester, PSScriptAnalyzer, powershell-yaml; 'modules-' + (ConvertFrom-Yaml 'k: ok').k"]
+    expect: "modules-ok"

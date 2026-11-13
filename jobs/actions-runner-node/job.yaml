@@ -1,0 +1,48 @@
+name: actions-runner-node
+mode: local-dockerfile
+registry: ghcr.io/janrk
+platforms:
+  - linux/amd64
+  - linux/arm64
+tagFormat: "v{version}-node{node}-b{basestamp}"
+extraTags:
+  - latest
+sources:
+  - id: version
+    method: literal
+    value: "0.1.0"
+  # Node LTS line (26 "Lithium"); move the filter and the node smoke-test expect together.
+  - id: node
+    method: githubReleaseByTag
+    link: nodejs/node
+    tag: "v26."
+    tagPrefixStrip: v
+  - id: base
+    method: localJob
+    link: pwsh-slim
+  - id: basestamp
+    method: localJob
+    link: pwsh-slim
+    tagPrefixStrip: v
+buildArgs:
+  BASE_TAG: "{base}"
+  NODE_VERSION: "{node}"
+test:
+  - entrypoint: node
+    args: ["--version"]
+    expect: "v26."
+  - entrypoint: sh
+    args: ["-c", "npm --version && node -e 'process.exit(0)' && echo node-ok"]
+    expect: "node-ok"
+  - entrypoint: sh
+    args: ["-c", "luac -v 2>&1 && lua -v 2>&1"]
+    expect: "Lua 5.1"
+  - entrypoint: sh
+    args: ["-c", "printf 'x=1\\n' > /tmp/a.lua && luac -p /tmp/a.lua && printf 'x=\\n' > /tmp/b.lua && ! luac -p /tmp/b.lua 2>/dev/null && echo luac-ok"]
+    expect: "luac-ok"
+  - entrypoint: sh
+    args: ["-c", "git --version | grep -q '^git version 2\\.' && ssh -V 2>&1 && command -v ssh-keygen && jq --version && bash --version | head -n 1 && echo tools-ok"]
+    expect: "tools-ok"
+  - entrypoint: pwsh
+    args: ["-NoLogo", "-NoProfile", "-NonInteractive", "-Command", "$ErrorActionPreference = 'Stop'; Import-Module Pester, PSScriptAnalyzer, powershell-yaml; 'pwsh76-' + ($PSVersionTable.PSVersion -ge [semver]'7.6.0') + ' modules-' + (ConvertFrom-Yaml 'k: ok').k"]
+    expect: "pwsh76-True modules-ok"
