@@ -1,0 +1,14 @@
+[
+  {
+    "builtTag": "v0.1.0-node26.13.1-b7.7.0-b0.1.0-b20261104",
+    "resolved": {
+      "version": "0.1.0",
+      "node": "26.13.1",
+      "base": "v7.7.0-b0.1.0-b20261104",
+      "basestamp": "7.7.0-b0.1.0-b20261104"
+    },
+    "builtDigest": "sha256:5274d43e1d9bb151a354ec6b2c84a81373e3dba58509300bf4c9eb13869ba8eb",
+    "builtAt": "2026-11-13T01:53:54Z",
+    "recipeDigest": "sha256:f2f0e6d7c03effe828c3a815833836b0f0b2c19a65d94413a7309c06b39b4948"
+  }
+]

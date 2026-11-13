@@ -1,0 +1,13 @@
+{
+  "builtAt": "2026-11-13T01:53:54Z",
+  "builtDigest": "sha256:5274d43e1d9bb151a354ec6b2c84a81373e3dba58509300bf4c9eb13869ba8eb",
+  "builtTag": "v0.1.0-node26.13.1-b7.7.0-b0.1.0-b20261104",
+  "name": "actions-runner-node",
+  "recipeDigest": "sha256:f2f0e6d7c03effe828c3a815833836b0f0b2c19a65d94413a7309c06b39b4948",
+  "resolved": {
+    "base": "v7.7.0-b0.1.0-b20261104",
+    "basestamp": "7.7.0-b0.1.0-b20261104",
+    "node": "26.13.1",
+    "version": "0.1.0"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "builtAt": "2026-11-13T01:52:30Z",
+  "builtDigest": "sha256:552b26f4a714b683693538bd8db1723c442de974545c8c8b14ff4eb007a85141",
+  "builtTag": "v0.1.0-yq4.54.3-b7.7.0-b0.1.0-b20261104",
+  "name": "actions-runner",
+  "recipeDigest": "sha256:0119a6aebeed70782088966e4d991ab9f329ed760a997e7f0e61447068ed0cf2",
+  "resolved": {
+    "base": "v7.7.0-b0.1.0-b20261104",
+    "basestamp": "7.7.0-b0.1.0-b20261104",
+    "version": "0.1.0",
+    "yq": "4.54.3"
+  }
+}
