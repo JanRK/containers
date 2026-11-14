@@ -45,6 +45,8 @@ test:
     args: ["-NoLogo", "-NoProfile", "-Command", "$PSVersionTable.PSVersion.ToString()"]
   - entrypoint: airlock-setup
     args: []
+  - entrypoint: sh
+    args: ["-c", "mkdir -p /tmp/checkout && AIRLOCK_CHECKOUT=/tmp/checkout airlock-setup && ! AIRLOCK_CHECKOUT=/tmp/no-checkout airlock-setup"]
   - entrypoint: docker
     args: ["--version"]
   - entrypoint: docker

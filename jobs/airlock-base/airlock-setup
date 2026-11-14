@@ -10,7 +10,15 @@ export MISE_DATA_DIR="${MISE_DATA_DIR:-/workspace/.airlock/runtimes}"
 export MISE_CACHE_DIR="${MISE_CACHE_DIR:-/workspace/.airlock/cache}"
 mkdir -p "$MISE_DATA_DIR" "$MISE_CACHE_DIR"
 
-if MISE_SAFE=1 mise install; then
+# mise reads config only from its directory and the parents, and the pod starts in /workspace, above
+# the checkout. The pod names the checkout, so this installs the same tools from wherever it runs.
+checkout="${AIRLOCK_CHECKOUT:-$PWD}"
+if [ ! -d "$checkout" ]; then
+    printf 'airlock-setup: checkout %s does not exist\n' "$checkout" >&2
+    exit 1
+fi
+
+if MISE_SAFE=1 mise --cd "$checkout" install; then
     exit 0
 else
     mise_status=$?
