@@ -1,10 +1,10 @@
 {
-  "builtAt": "2026-10-28T23:54:14Z",
-  "builtDigest": "sha256:1eb0f50106e09cef29812f8adf720599681b7099d77a3513b44b970e3996260d",
-  "builtTag": "v1.19.5-r1",
+  "builtAt": "2026-11-17T07:51:30Z",
+  "builtDigest": "sha256:ab4c88c243da065c488c65448927e40428afc6d0d3397ceb6e95f1258ffc5516",
+  "builtTag": "v1.19.6",
   "name": "opencode",
   "recipeDigest": "sha256:30fbb6f615e3515f1457a99301939b6ec5a31c27d3a895281cfaf21023a459e8",
   "resolved": {
-    "opencode": "1.19.5"
+    "opencode": "1.19.6"
   }
 }
