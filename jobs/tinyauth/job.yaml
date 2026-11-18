@@ -1,0 +1,19 @@
+# Tinyauth distroless variant. Tracks stable vX.Y.Z-distroless only (skips the
+# alpine default, pre-releases and the vX/vX.Y-distroless aliases).
+name: tinyauth
+mode: mirror
+registry: ghcr.io/janrk
+platforms:
+  - linux/amd64
+  - linux/arm64
+tagFormat: "{version}"
+extraTags:
+  - latest
+sources:
+  - id: version
+    method: dockerRegistry
+    link: ghcr.io/tinyauthapp/tinyauth
+    tagPattern: '^v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)-distroless$'
+mirror:
+  source: ghcr.io/tinyauthapp/tinyauth
+  track: version

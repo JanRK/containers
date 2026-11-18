@@ -1,0 +1,25 @@
+{
+  "plan": {
+    "name": "tinyauth",
+    "mode": "mirror",
+    "image": "ghcr.io/janrk/tinyauth",
+    "track": "version",
+    "targetTag": "v5.2.0-distroless",
+    "extraTags": [
+      "latest"
+    ],
+    "resolved": {
+      "version": "v5.2.0-distroless"
+    },
+    "platforms": [
+      "linux/amd64",
+      "linux/arm64"
+    ],
+    "test": [],
+    "mirrorSource": "ghcr.io/tinyauthapp/tinyauth:v5.2.0-distroless"
+  },
+  "configDigest": "sha256:64e344bf3a8be8e5c74c1b37492cc3176ce4ad7b9b40414536ffe3066e131aa7",
+  "desiredAt": "2026-11-18T00:27:40Z",
+  "firstDesiredAt": "2026-11-18T00:27:40Z",
+  "attempt": 1
+}
