@@ -1,0 +1,19 @@
+# Oh My CPA (WizisCool/oh-my-cpa), console for CLIProxyAPI. Upstream publishes only
+# to Docker Hub, each release as both vX.Y.Z and X.Y.Z; tracks the canonical vX.Y.Z.
+name: oh-my-cpa
+mode: mirror
+registry: ghcr.io/janrk
+platforms:
+  - linux/amd64
+  - linux/arm64
+tagFormat: "{version}"
+extraTags:
+  - latest
+sources:
+  - id: version
+    method: dockerRegistry
+    link: docker.io/wiziscool/oh-my-cpa
+    tagPattern: '^v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)$'
+mirror:
+  source: docker.io/wiziscool/oh-my-cpa
+  track: version

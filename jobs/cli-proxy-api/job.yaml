@@ -1,0 +1,19 @@
+# CLIProxyAPI (router-for-me/CLIProxyAPI). Upstream publishes only to Docker Hub;
+# tracks stable vX.Y.Z (skips the -amd64/-arm64 staging and -dev/-plus tags).
+name: cli-proxy-api
+mode: mirror
+registry: ghcr.io/janrk
+platforms:
+  - linux/amd64
+  - linux/arm64
+tagFormat: "{version}"
+extraTags:
+  - latest
+sources:
+  - id: version
+    method: dockerRegistry
+    link: docker.io/eceasy/cli-proxy-api
+    tagPattern: '^v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)$'
+mirror:
+  source: docker.io/eceasy/cli-proxy-api
+  track: version
