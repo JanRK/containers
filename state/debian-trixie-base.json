@@ -1,12 +1,12 @@
 {
-  "builtAt": "2026-11-05T21:52:02Z",
-  "builtDigest": "sha256:e9e0a4dcff422fa61d0abaffe75e19521095de574c2018c2b510d5b55b4c5918",
-  "builtTag": "v0.1.0-b20261104",
+  "builtAt": "2026-11-24T06:22:40Z",
+  "builtDigest": "sha256:4b2e54ceafdf5e6be2e910ebf3927d1b700177ed3a11c6401a33616dc37ad10b",
+  "builtTag": "v0.1.0-b20261123",
   "name": "debian-trixie-base",
   "recipeDigest": "sha256:b2988094879e2f69690c8d7137175c3ea900fa7a2105316180cd147c69e1c0c8",
   "resolved": {
-    "base": "trixie-20261104-slim",
-    "basestamp": "20261104",
+    "base": "trixie-20261123-slim",
+    "basestamp": "20261123",
     "version": "0.1.0"
   }
 }
