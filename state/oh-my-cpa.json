@@ -1,9 +1,9 @@
 {
-  "builtAt": "2026-11-23T20:20:07Z",
-  "builtDigest": "sha256:e63999d958b4019beb5eb231e4ef40c53f910f6e96138fe849062149cbdebe46",
-  "builtTag": "v0.4.13",
+  "builtAt": "2026-11-25T13:50:01Z",
+  "builtDigest": "sha256:41ec3dda9d17096e21a08ae02c859c09584f9399a42d0e43b7c415c4a7a9e352",
+  "builtTag": "v0.4.14",
   "name": "oh-my-cpa",
   "resolved": {
-    "version": "v0.4.13"
+    "version": "v0.4.14"
   }
 }
