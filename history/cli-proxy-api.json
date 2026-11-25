@@ -1,5 +1,13 @@
 [
   {
+    "builtTag": "v8.1.3",
+    "resolved": {
+      "version": "v8.1.3"
+    },
+    "builtDigest": "sha256:784019627af9654e5d595aa74b6bdeb819c5a2a6f9ebade5461dcf2a8ba65d3a",
+    "builtAt": "2026-11-25T04:49:51Z"
+  },
+  {
     "builtTag": "v8.1.2",
     "resolved": {
       "version": "v8.1.2"
