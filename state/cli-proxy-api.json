@@ -1,9 +1,9 @@
 {
-  "builtAt": "2026-11-25T14:19:44Z",
-  "builtDigest": "sha256:32fb7dfc272bf63daee4dcaaa679095aad431ceed31416f98ea55f3d1d7db77a",
-  "builtTag": "v8.1.4",
+  "builtAt": "2026-11-26T10:19:40Z",
+  "builtDigest": "sha256:dee9508af960cdb3de0bfae5343a3fb851ff2af6c385bac6776b2312f21cc453",
+  "builtTag": "v8.1.5",
   "name": "cli-proxy-api",
   "resolved": {
-    "version": "v8.1.4"
+    "version": "v8.1.5"
   }
 }
