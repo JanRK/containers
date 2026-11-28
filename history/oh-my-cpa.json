@@ -1,5 +1,13 @@
 [
   {
+    "builtTag": "v0.4.17",
+    "resolved": {
+      "version": "v0.4.17"
+    },
+    "builtDigest": "sha256:2bb9cb98fc150218603942a0c36a57bfc4ca9a82746e7081bd49880c7bc5ffa3",
+    "builtAt": "2026-11-28T12:49:41Z"
+  },
+  {
     "builtTag": "v0.4.16",
     "resolved": {
       "version": "v0.4.16"
